@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  postgres-tasks:
+    image: postgres:15
+    container_name: postgres-tasks
+    environment:
+      POSTGRES_DB: tasks_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - task-data:/var/lib/postgresql/data
+
+volumes:
+  task-data:
