@@ -33,11 +33,11 @@ public class Task {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private TaskStatus status;
+    private TaskStatus status = TaskStatus.TODO;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private Priority priority;
+    private Priority priority = Priority.MEDIUM;
 
     @PrePersist
     public void onPrePersist() {
