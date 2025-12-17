@@ -15,32 +15,27 @@ public class Task {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private Long id;
 
-    @Column(name = "title", nullable = false)
+    @Column(nullable = false)
     private String title;
 
-    @Column(name = "description")
     private String description;
 
-    @Column(name = "assignedToEmail", nullable = false)
     private String assignedToEmail;
 
-    @Column(name = "createdAt")
     private LocalDateTime createdAt;
 
-    @Column(name = "updatedAt")
     private LocalDateTime updatedAt;
 
-    @Column(name = "deadline", nullable = false)
+    @Column(nullable = false)
     private LocalDateTime deadline;
 
-    @Column(name = "status", nullable = false)
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private TaskStatus status;
 
-    @Column(name = "priority", nullable = false)
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Priority priority;
 
