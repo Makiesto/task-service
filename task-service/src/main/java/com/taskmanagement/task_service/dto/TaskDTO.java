@@ -1,4 +1,25 @@
 package com.taskmanagement.task_service.dto;
 
+import com.taskmanagement.task_service.entity.Priority;
+import com.taskmanagement.task_service.entity.TaskStatus;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class TaskDTO {
+
+    private Long id;
+    private String title;
+    private String description;
+    private String assignedToEmail;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private LocalDateTime deadline;
+    private TaskStatus status;
+    private Priority priority;
 }

@@ -1,6 +1,8 @@
 package com.taskmanagement.task_service.service;
 
+import com.taskmanagement.task_service.dto.TaskDTO;
 import com.taskmanagement.task_service.entity.Task;
+import com.taskmanagement.task_service.mapper.TaskMapper;
 import com.taskmanagement.task_service.repository.TaskRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,40 +15,59 @@ public class TaskServiceImpl implements TaskService {
     @Autowired
     private TaskRepository taskRepository;
 
+    @Autowired
+    private TaskMapper taskMapper;
+
     @Override
-    public List<Task> findAllTasks() {
+    public List<TaskDTO> findAllTasks() {
         List<Task> tasks = taskRepository.findAll();
         System.out.println("Found all tasks: " + tasks);
-        return tasks;
+
+        return taskMapper.toDTOList(tasks);
     }
 
     @Override
-    public Task findTaskById(Long id) {
+    public TaskDTO findTaskById(Long id) {
+        // in future return own exception
+        Task task = taskRepository.findById(id).orElse(null);
 
-        Task task = taskRepository.findById(id).get();
-        System.out.println("Found task with id: " + id + ": " + task.getTitle());
-
-        return task;
-    }
-
-    @Override
-    public Task createTask(Task task) {
-        Task taskCreated = taskRepository.save(task);
-        System.out.println("Creating task: " + taskCreated.getTitle());
-        return taskCreated;
-    }
-
-    @Override
-    public Task updateTask(Task task) {
-        if (taskRepository.findById(task.getId()).isPresent()) {
-            taskRepository.save(task);
-            System.out.println("Updated task");
-            return task;
-        } else {
-            System.out.println("Task not found");
+        if (task == null) {
+            throw new RuntimeException("Task not found with id: " + id);  // Temporary
         }
 
-        return null;
+        return taskMapper.toDTO(task);
+    }
+
+    @Override
+    public TaskDTO createTask(TaskDTO taskDTO) {
+        Task task = taskMapper.toEntity(taskDTO);
+        Task taskCreated = taskRepository.save(task);
+
+        System.out.println("Creating task: " + taskCreated.getTitle());
+        return taskMapper.toDTO(taskCreated);
+    }
+
+    @Override
+    public TaskDTO updateTask(Long id, TaskDTO taskDTO) {
+        // in future return own exception
+        Task task = taskRepository.findById(id).orElse(null);
+
+        if (task == null) {
+            throw new RuntimeException("Task not found with id: " + id);  // Temporary
+        }
+
+        task.setTitle(taskDTO.getTitle());
+        task.setDescription(taskDTO.getDescription());
+        task.setPriority(taskDTO.getPriority());
+        task.setAssignedToEmail(taskDTO.getAssignedToEmail());
+        task.setPriority(taskDTO.getPriority());
+        task.setDeadline(taskDTO.getDeadline());
+        task.setStatus(taskDTO.getStatus());
+        taskRepository.save(task);
+        System.out.println("Updating task: " + task.getTitle());
+        return taskMapper.toDTO(task);
+
+
     }
 
     @Override
@@ -55,7 +76,7 @@ public class TaskServiceImpl implements TaskService {
             taskRepository.deleteById(id);
             System.out.println("Deleted task  with id: " + id);
         } else {
-            System.out.println("Deleted task with id: " + id);
+            System.out.println("Task with " + id + " not found");
         }
     }
 }
