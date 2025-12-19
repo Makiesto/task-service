@@ -32,10 +32,6 @@ public class TaskServiceImpl implements TaskService {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Task not found with id: " + id));
 
-        if (task == null) {
-            throw new RuntimeException("Task not found with id: " + id);  // Temporary
-        }
-
         return taskMapper.toDTO(task);
     }
 
