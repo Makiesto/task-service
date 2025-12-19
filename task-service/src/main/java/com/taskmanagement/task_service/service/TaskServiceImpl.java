@@ -40,8 +40,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public TaskDTO createTask(TaskDTO taskDTO) {
-        Task task = taskMapper.toEntity(taskDTO);
-        Task taskCreated = taskRepository.save(task);
+        Task taskCreated = taskRepository.save(taskMapper.toEntity(taskDTO));
 
         System.out.println("Creating task: " + taskCreated.getTitle());
         return taskMapper.toDTO(taskCreated);
@@ -50,33 +49,27 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public TaskDTO updateTask(Long id, TaskDTO taskDTO) {
         // in future return own exception
-        Task task = taskRepository.findById(id).orElse(null);
 
-        if (task == null) {
-            throw new RuntimeException("Task not found with id: " + id);  // Temporary
-        }
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Task not found with id: " + id));
 
-        task.setTitle(taskDTO.getTitle());
-        task.setDescription(taskDTO.getDescription());
-        task.setPriority(taskDTO.getPriority());
-        task.setAssignedToEmail(taskDTO.getAssignedToEmail());
-        task.setPriority(taskDTO.getPriority());
-        task.setDeadline(taskDTO.getDeadline());
-        task.setStatus(taskDTO.getStatus());
-        taskRepository.save(task);
+        // This one line replaces all your manual setters!
+        taskMapper.updateEntityFromDTO(taskDTO, task);
         System.out.println("Updating task: " + task.getTitle());
-        return taskMapper.toDTO(task);
 
-
+        Task updatedTask = taskRepository.save(task);
+        return taskMapper.toDTO(updatedTask);
     }
 
     @Override
     public void deleteTask(Long id) {
-        if (taskRepository.findById(id).isPresent()) {
-            taskRepository.deleteById(id);
-            System.out.println("Deleted task  with id: " + id);
-        } else {
-            System.out.println("Task with " + id + " not found");
-        }
+        // in future return own exception
+
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Task not found with id: " + id));
+
+        taskRepository.delete(task);
+        System.out.println("Deleted task  with id: " + id);
+
     }
 }

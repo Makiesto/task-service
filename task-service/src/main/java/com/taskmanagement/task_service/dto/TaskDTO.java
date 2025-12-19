@@ -17,8 +17,6 @@ public class TaskDTO {
     private String title;
     private String description;
     private String assignedToEmail;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
     private LocalDateTime deadline;
     private TaskStatus status;
     private Priority priority;
