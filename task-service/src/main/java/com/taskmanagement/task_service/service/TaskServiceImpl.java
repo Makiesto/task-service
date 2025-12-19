@@ -29,7 +29,8 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public TaskDTO findTaskById(Long id) {
         // in future return own exception
-        Task task = taskRepository.findById(id).orElse(null);
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Task not found with id: " + id));
 
         if (task == null) {
             throw new RuntimeException("Task not found with id: " + id);  // Temporary
