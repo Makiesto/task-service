@@ -1,7 +1,6 @@
 package com.taskmanagement.task_service.controller;
 
 import com.taskmanagement.task_service.dto.TaskDTO;
-import com.taskmanagement.task_service.entity.Task;
 import com.taskmanagement.task_service.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -10,7 +9,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/tasks")
-public class TaskController {
+public class TaskRestController {
 
     @Autowired
     private TaskService taskService;
