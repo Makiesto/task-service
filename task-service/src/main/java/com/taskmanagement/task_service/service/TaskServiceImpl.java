@@ -2,12 +2,14 @@ package com.taskmanagement.task_service.service;
 
 import com.taskmanagement.task_service.dto.TaskDTO;
 import com.taskmanagement.task_service.entity.Task;
+import com.taskmanagement.task_service.exception.DeadlineBeforeTodayException;
 import com.taskmanagement.task_service.exception.DuplicateTitleException;
 import com.taskmanagement.task_service.mapper.TaskMapper;
 import com.taskmanagement.task_service.repository.TaskRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -41,6 +43,9 @@ public class TaskServiceImpl implements TaskService {
 
         if (taskRepository.existsByTitle(taskDTO.getTitle())) {
             throw new DuplicateTitleException("Task with this title already exists");
+        }
+        else if (taskDTO.getDeadline().isBefore(LocalDateTime.now())) {
+            throw new DeadlineBeforeTodayException("Task deadline cannot be set in past");
         }
 
         Task taskCreated = taskRepository.save(taskMapper.toEntity(taskDTO));

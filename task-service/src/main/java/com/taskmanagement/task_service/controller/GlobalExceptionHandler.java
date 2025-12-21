@@ -1,6 +1,7 @@
 package com.taskmanagement.task_service.controller;
 
 import com.taskmanagement.task_service.dto.TaskDTO;
+import com.taskmanagement.task_service.exception.DeadlineBeforeTodayException;
 import com.taskmanagement.task_service.exception.DuplicateTitleException;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -18,4 +19,12 @@ public class GlobalExceptionHandler {
         return "add-task";
     }
 
+    @ExceptionHandler(DeadlineBeforeTodayException.class)
+    public String handleDeadlineBeforeTodayException(Exception exception, Model model) {
+
+        model.addAttribute("task", new TaskDTO());
+        model.addAttribute("errorMessage", exception.getMessage());
+
+        return "add-task";
+    }
 }
