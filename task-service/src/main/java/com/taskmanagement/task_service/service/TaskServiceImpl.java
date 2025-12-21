@@ -2,6 +2,7 @@ package com.taskmanagement.task_service.service;
 
 import com.taskmanagement.task_service.dto.TaskDTO;
 import com.taskmanagement.task_service.entity.Task;
+import com.taskmanagement.task_service.exception.DuplicateTitleException;
 import com.taskmanagement.task_service.mapper.TaskMapper;
 import com.taskmanagement.task_service.repository.TaskRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,11 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public TaskDTO createTask(TaskDTO taskDTO) {
+
+        if (taskRepository.existsByTitle(taskDTO.getTitle())) {
+            throw new DuplicateTitleException("Task with this title already exists");
+        }
+
         Task taskCreated = taskRepository.save(taskMapper.toEntity(taskDTO));
 
         System.out.println("Creating task: " + taskCreated.getTitle());

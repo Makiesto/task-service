@@ -33,7 +33,7 @@
     <span th:if="${#fields.hasErrors('priority')}" th:errors="*{priority}"></span>
 
     <label for="status">Status</label>
-    <select id="status" th:field="*{status}" >
+    <select id="status" th:field="*{status}">
         <option value="" disabled selected>-- select status --</option>
         <option th:each="s : ${statuses}"
                 th:value="${s}"
@@ -42,6 +42,9 @@
     </select>
     <span th:if="${#fields.hasErrors('status')}" th:errors="*{status}"></span>
 
+    <div th:if="${errorMessage}" style="color:red">
+        <p th:text="${errorMessage}"></p>
+    </div>
 
     <input type="submit" value="Add Task">
 </form>
