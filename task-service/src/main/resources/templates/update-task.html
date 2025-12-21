@@ -22,16 +22,29 @@
     <span th:if="${#fields.hasErrors('assignedToEmail')}" th:errors="*{assignedToEmail}"></span>
 
     <label for="deadline">Deadline</label>
-    <input type="text" th:field="*{deadline}" id="deadline" placeholder="Deadline">
+    <input type="datetime-local" th:field="*{deadline}" id="deadline" placeholder="Deadline">
     <span th:if="${#fields.hasErrors('deadline')}" th:errors="*{deadline}"></span>
 
     <label for="priority">Priority</label>
-    <input type="text" th:field="*{priority}" id="priority" placeholder="Priority">
+    <select id="priority" th:field="*{priority}">
+        <option value="" disabled selected>-- select priority --</option>
+        <option th:each="p : ${priorities}"
+                th:value="${p}"
+                th:text="${p}">
+        </option>
+    </select>
     <span th:if="${#fields.hasErrors('priority')}" th:errors="*{priority}"></span>
 
     <label for="status">Status</label>
-    <input type="text" th:field="*{status}" id="status" placeholder="Status">
+    <select id="status" th:field="*{status}">
+        <option value="" disabled selected>-- select status --</option>
+        <option th:each="s : ${statuses}"
+                th:value="${s}"
+                th:text="${s}">
+        </option>
+    </select>
     <span th:if="${#fields.hasErrors('status')}" th:errors="*{status}"></span>
+
 
     <input type="submit" value="Update Task">
 </form>

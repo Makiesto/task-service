@@ -19,7 +19,7 @@
     <span th:if="${#fields.hasErrors('assignedToEmail')}" th:errors="*{assignedToEmail}"></span>
 
     <label for="deadline">Deadline</label>
-    <input type="date" th:field="*{deadline}" id="deadline" placeholder="Deadline">
+    <input type="datetime-local" th:field="*{deadline}" id="deadline" placeholder="Deadline">
     <span th:if="${#fields.hasErrors('deadline')}" th:errors="*{deadline}"></span>
 
     <label for="priority">Priority</label>
@@ -43,7 +43,7 @@
     <span th:if="${#fields.hasErrors('status')}" th:errors="*{status}"></span>
 
 
-    <input type="submit" value="Update Task">
+    <input type="submit" value="Add Task">
 </form>
 </body>
 </html>

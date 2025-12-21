@@ -55,7 +55,7 @@ public class TaskViewController {
         }
 
         taskService.createTask(task);
-        return "redirect:/index";
+        return "redirect:/tasks/index";
     }
 
 
@@ -64,6 +64,9 @@ public class TaskViewController {
         TaskDTO task = taskService.findTaskById(id);
 
         model.addAttribute("task", task);
+        model.addAttribute("priorities", Priority.values());
+        model.addAttribute("statuses", TaskStatus.values());
+
         return "update-task";
     }
 
@@ -86,6 +89,6 @@ public class TaskViewController {
         TaskDTO task = taskService.findTaskById(id);
         taskService.deleteTask(id);
 
-        return "redirect:/index";
+        return "redirect:/tasks/index";
     }
 }
