@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add a task</title>
+</head>
+<body>
+<form action="#" th:action="@{/add}" th:object="${task}" method="post">
+    <label for="Title">Title</label>
+    <input type="text" th:field="*{title}" id="title" placeholder="Title">
+    <span th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></span>
+    <label for="assignedToEmail">AssignedToEmail</label>
+    <input type="text" th:field="*{assignedToEmail}" id="assignedToEmail" placeholder="Assigned to email">
+    <span th:if="${#fields.hasErrors('assignedToEmail')}" th:errors="*{assignedToEmail}"></span>
+    <input type="submit" value="Add Task">
+</form>
+</body>
+</html>

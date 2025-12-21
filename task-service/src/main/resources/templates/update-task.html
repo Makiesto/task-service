@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Update task</title>
+</head>
+<body>
+<form action="#"
+      th:action="@{/tasks/update/{id}(id=${task.id})}"
+      th:object="${task}"
+      method="post">
+    <label for="name">Title</label>
+    <input type="text" th:field="*{title}" id="name" placeholder="Name">
+    <span th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></span>
+    <label for="assignedToEmail">Assigned to email</label>
+    <input type="text" th:field="*{assignedToEmail}" id="assignedToEmail" placeholder="Email">
+    <span th:if="${#fields.hasErrors('assignedToEmail')}" th:errors="*{assignedToEmail}"></span>
+    <input type="submit" value="Update Task">
+</form>
+</body>
+</html>

@@ -1,6 +1,7 @@
 package com.taskmanagement.task_service.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import lombok.*;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -23,6 +24,7 @@ public class Task {
 
     private String description;
 
+    @Email
     private String assignedToEmail;
 
     private LocalDateTime createdAt;
