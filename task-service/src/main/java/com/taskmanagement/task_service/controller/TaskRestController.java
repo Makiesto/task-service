@@ -1,8 +1,12 @@
 package com.taskmanagement.task_service.controller;
 
 import com.taskmanagement.task_service.dto.TaskDTO;
+import com.taskmanagement.task_service.entity.Task;
 import com.taskmanagement.task_service.service.TaskService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,30 +19,33 @@ public class TaskRestController {
     private TaskService taskService;
 
     @GetMapping
-    public List<TaskDTO> getTasks() {
+    public ResponseEntity<List<TaskDTO>> getTasks() {
 
-        return taskService.findAllTasks();
+        return ResponseEntity.ok(taskService.findAllTasks());
     }
 
     @GetMapping("/{id}")
-    public TaskDTO getTaskById(@PathVariable Long id) {
-        return taskService.findTaskById(id);
+    public ResponseEntity<TaskDTO> getTaskById(@PathVariable Long id) {
+        return ResponseEntity.ok(taskService.findTaskById(id));
     }
 
     @PostMapping
-    public TaskDTO createTask(@RequestBody TaskDTO taskDTO) {
+    public ResponseEntity<TaskDTO> createTask(@Valid @RequestBody TaskDTO taskDTO) {
+        TaskDTO created = taskService.createTask(taskDTO);
 
-        return taskService.createTask(taskDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @PutMapping("/{id}")
-    public TaskDTO updateTask(@RequestBody TaskDTO taskDTO,  @PathVariable Long id) {
-        return taskService.updateTask(id, taskDTO);
+    public ResponseEntity<TaskDTO> updateTask(@Valid @RequestBody TaskDTO taskDTO,  @PathVariable Long id) {
+        return ResponseEntity.ok(taskService.updateTask(id, taskDTO));
     }
 
     @DeleteMapping("/{id}")
-    public void deleteTaskById(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteTaskById(@PathVariable Long id) {
         taskService.deleteTask(id);
+
+        return ResponseEntity.noContent().build();
     }
 
 }
