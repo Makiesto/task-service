@@ -20,6 +20,7 @@ public class TaskDTO {
     private Long id;
     @NotBlank(message = "Title is required")
     private String title;
+    private Long projectId;
     private String description;
     @Email(message = "Invalid email")
     private String assignedToEmail;

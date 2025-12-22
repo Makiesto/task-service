@@ -1,7 +1,6 @@
 package com.taskmanagement.task_service.service;
 
 import com.taskmanagement.task_service.dto.TaskDTO;
-import com.taskmanagement.task_service.entity.Task;
 
 import java.util.List;
 

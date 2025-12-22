@@ -23,6 +23,10 @@ public class Task {
     @Column(nullable = false, unique = true)
     private String title;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_id",  nullable = false)
+    private Project project;
+
     private String description;
 
     @Email(message = "Invalid email")
