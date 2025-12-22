@@ -29,7 +29,6 @@ public class Task {
 
     private String description;
 
-    @Email(message = "Invalid email")
     private String assignedToEmail;
 
     private LocalDateTime createdAt;
@@ -38,7 +37,6 @@ public class Task {
 
     @Column(nullable = false)
     @NotNull
-    @Future(message = "Deadline must be in future")
     private LocalDateTime deadline;
 
     @Column(nullable = false)
