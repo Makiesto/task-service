@@ -7,7 +7,7 @@
 <body>
 <form action="#" th:action="@{/tasks/add}" th:object="${task}" method="post">
     <label for="title">Title</label>
-    <input type="text" th:field="*{title}" id="title" placeholder="Title">
+    <input type="text" th:field="*{title}" id="title" placeholder="Title" required>
     <span th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></span>
 
     <label for="description">Description</label>
@@ -15,11 +15,11 @@
     <span th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></span>
 
     <label for="assignedToEmail">Assigned To Email</label>
-    <input type="email" th:field="*{assignedToEmail}" id="assignedToEmail" placeholder="Assigned To Email">
+    <input type="email" th:field="*{assignedToEmail}" id="assignedToEmail" placeholder="Assigned To Email" required>
     <span th:if="${#fields.hasErrors('assignedToEmail')}" th:errors="*{assignedToEmail}"></span>
 
     <label for="deadline">Deadline</label>
-    <input type="datetime-local" th:field="*{deadline}" id="deadline" placeholder="Deadline">
+    <input type="datetime-local" th:field="*{deadline}" id="deadline" placeholder="Deadline" required>
     <span th:if="${#fields.hasErrors('deadline')}" th:errors="*{deadline}"></span>
 
     <label for="priority">Priority</label>
