@@ -2,6 +2,8 @@ package com.taskmanagement.task_service.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -23,7 +25,7 @@ public class Task {
 
     private String description;
 
-    @Email
+    @Email(message = "Invalid email")
     private String assignedToEmail;
 
     private LocalDateTime createdAt;
@@ -31,6 +33,8 @@ public class Task {
     private LocalDateTime updatedAt;
 
     @Column(nullable = false)
+    @NotNull
+    @Future(message = "Deadline must be in future")
     private LocalDateTime deadline;
 
     @Column(nullable = false)
