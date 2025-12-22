@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @ControllerAdvice
-public class GlobalExceptionHandler {
+public class ViewExceptionHandler {
 
     @ExceptionHandler({
         DuplicateTitleException.class,
@@ -25,5 +25,7 @@ public class GlobalExceptionHandler {
 
         return "add-task";
     }
+
+
 
 }
