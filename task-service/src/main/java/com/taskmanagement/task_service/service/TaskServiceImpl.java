@@ -49,8 +49,8 @@ public class TaskServiceImpl implements TaskService {
         }
 
         Task taskCreated = taskRepository.save(taskMapper.toEntity(taskDTO));
-
         System.out.println("Creating task: " + taskCreated.getTitle());
+
         return taskMapper.toDTO(taskCreated);
     }
 
