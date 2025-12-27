@@ -23,20 +23,22 @@ public class User {
     @Column(unique = true,  nullable = false)
     private String email;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "first_name")
     private String firstName;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "last_name")
     private String lastName;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "password_hash")
     private String password;
 
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
 
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
     @PrePersist
