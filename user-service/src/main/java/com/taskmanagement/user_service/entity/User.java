@@ -24,10 +24,13 @@ public class User {
     private String email;
 
     @Column(nullable = false)
-    private String name;
+    private String firstName;
 
     @Column(nullable = false)
-    private String password;
+    private String lastName;
+
+    @Column(nullable = false)
+    private String passwordHash;
 
     @Enumerated(EnumType.STRING)
     private UserRole role;

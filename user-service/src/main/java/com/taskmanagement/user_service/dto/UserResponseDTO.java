@@ -13,7 +13,8 @@ import java.time.LocalDateTime;
 public class UserResponseDTO {
     private Long id;
     private String email;
-    private String name;
+    private String firstName;
+    private String lastName;
     private UserRole role;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
