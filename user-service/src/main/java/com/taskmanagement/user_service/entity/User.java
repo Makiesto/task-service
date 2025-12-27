@@ -30,7 +30,7 @@ public class User {
     private String lastName;
 
     @Column(nullable = false)
-    private String passwordHash;
+    private String password;
 
     @Enumerated(EnumType.STRING)
     private UserRole role;
