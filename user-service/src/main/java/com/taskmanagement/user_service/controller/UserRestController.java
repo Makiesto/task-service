@@ -4,6 +4,7 @@ import com.taskmanagement.user_service.dto.UserRequestDTO;
 import com.taskmanagement.user_service.dto.UserResponseDTO;
 import com.taskmanagement.user_service.entity.UserRole;
 import com.taskmanagement.user_service.service.UserService;
+import com.taskmanagement.user_service.service.UserServiceImpl;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,7 +31,7 @@ public class UserRestController {
     }
 
     @PostMapping
-    public ResponseEntity<UserResponseDTO> createUser(@Valid @RequestBody UserRequestDTO userRequestDTO) {
+    protected ResponseEntity<UserResponseDTO> createUser(@Valid @RequestBody UserRequestDTO userRequestDTO) {
         UserResponseDTO userResponseDTO = userService.createUser(userRequestDTO);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(userResponseDTO);

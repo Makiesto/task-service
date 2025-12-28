@@ -7,9 +7,11 @@ import com.taskmanagement.user_service.entity.UserRole;
 import com.taskmanagement.user_service.mapper.UserMapper;
 import com.taskmanagement.user_service.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class UserServiceImpl implements UserService {
 
     @Autowired
@@ -27,10 +29,12 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("User already exists");
         }
 
-        User userCreated = userRepository.save(userMapper.toEntity(userRequestDTO));
-        System.out.println("Creating user with name: " + userCreated.getName());
+        User user = userMapper.toEntity(userRequestDTO);
+        // TODO: Hash password
+        User saved = userRepository.save(user);
+        System.out.println("Creating user with name: " + saved.getFirstName());
 
-        return userMapper.toResponseDTO(userCreated);
+        return userMapper.toResponseDTO(saved);
     }
 
     @Override
@@ -81,7 +85,7 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
 
         userMapper.updateEntityFromDTO(userRequestDTO, user);
-        System.out.println("Updating user: " + user.getName());
+        System.out.println("Updating user: " + user.getEmail());
 
         return userMapper.toResponseDTO(userRepository.save(user));
     }
