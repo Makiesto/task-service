@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  postgres-tasks:
+    container_name: postgres-tasks
+    image: postgres:15
+    environment:
+      POSTGRES_DB: ${POSTGRES_TASKS_DB:-taskdb} 
+      POSTGRES_USER: ${POSTGRES_USER1:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD1:-postgres}
+    volumes:
+      - task-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - task-network
+
+  postgres-users:
+    image: postgres:15
+    container_name: postgres-users
+    environment:
+      POSTGRES_DB: ${POSTGRES_USERS_DB:-usersdb}
+      POSTGRES_USER: ${POSTGRES_USER2:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD2:-postgres}
+    ports:
+      - "5433:5432" 
+    volumes:
+      - user-data:/var/lib/postgresql/data
+    networks:
+      - task-network
+
+  pgadmin:
+    container_name: pgadmin_container
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    volumes:
+       - pgadmin:/var/lib/pgadmin
+
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    networks:
+      - task-network
+    restart: unless-stopped
+
+networks:
+  task-network:
+    driver: bridge
+
+volumes:
+    task-data:
+    user-data:
+    pgadmin:
