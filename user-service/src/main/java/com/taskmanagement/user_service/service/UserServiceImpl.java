@@ -6,19 +6,18 @@ import com.taskmanagement.user_service.entity.User;
 import com.taskmanagement.user_service.entity.UserRole;
 import com.taskmanagement.user_service.mapper.UserMapper;
 import com.taskmanagement.user_service.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private UserMapper userMapper;
+    private final UserMapper userMapper;
 
 
     @Override
@@ -71,8 +70,10 @@ public class UserServiceImpl implements UserService {
     public List<UserResponseDTO> findUsersByRole(UserRole role) {
 
         // in future return own exception
-        List<User> users = userRepository.findByUserRole(role)
-                .orElseThrow(() -> new RuntimeException("Users not found with role: " + role.toString()));
+        List<User> users = userRepository.findByRole(role);
+        if (users.isEmpty()) {
+            throw new RuntimeException("No users found with role: " + role);
+        }
 
         return userMapper.toResponseDTOList(users);
     }
@@ -93,7 +94,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(Long id) {
 
-         // in future return own exception
+        // in future return own exception
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
 

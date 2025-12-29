@@ -4,10 +4,8 @@ import com.taskmanagement.user_service.dto.UserRequestDTO;
 import com.taskmanagement.user_service.dto.UserResponseDTO;
 import com.taskmanagement.user_service.entity.UserRole;
 import com.taskmanagement.user_service.service.UserService;
-import com.taskmanagement.user_service.service.UserServiceImpl;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,10 +13,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
+@RequiredArgsConstructor
 public class UserRestController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
     @GetMapping
     public ResponseEntity<List<UserResponseDTO>> findAll() {
@@ -28,13 +26,6 @@ public class UserRestController {
     @GetMapping("/{id}")
     public ResponseEntity<UserResponseDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok(userService.findUserById(id));
-    }
-
-    @PostMapping
-    protected ResponseEntity<UserResponseDTO> createUser(@Valid @RequestBody UserRequestDTO userRequestDTO) {
-        UserResponseDTO userResponseDTO = userService.createUser(userRequestDTO);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(userResponseDTO);
     }
 
     @PutMapping("/{id}")
