@@ -5,7 +5,7 @@ services:
     container_name: postgres-tasks
     image: postgres:15
     environment:
-      POSTGRES_DB: ${POSTGRES_TASKS_DB:-taskdb} 
+      POSTGRES_DB: ${POSTGRES_TASKS_DB:-tasksdb} 
       POSTGRES_USER: ${POSTGRES_USER1:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD1:-postgres}
     volumes:
@@ -45,6 +45,21 @@ services:
       - task-network
     restart: unless-stopped
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:-guest}
+
+    volumes:
+      - rabbitmq:/var/lib/rabbitmq
+    networks:
+      - task-network  
+
 networks:
   task-network:
     driver: bridge
@@ -53,3 +68,4 @@ volumes:
     task-data:
     user-data:
     pgadmin:
+    rabbitmq:
