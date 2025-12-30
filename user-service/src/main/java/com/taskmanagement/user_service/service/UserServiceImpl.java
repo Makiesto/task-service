@@ -2,11 +2,13 @@ package com.taskmanagement.user_service.service;
 
 import com.taskmanagement.user_service.dto.UserRequestDTO;
 import com.taskmanagement.user_service.dto.UserResponseDTO;
+import com.taskmanagement.user_service.dto.UserUpdateEventDTO;
 import com.taskmanagement.user_service.entity.User;
 import com.taskmanagement.user_service.entity.UserRole;
 import com.taskmanagement.user_service.mapper.UserMapper;
 import com.taskmanagement.user_service.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +22,8 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     private final UserMapper userMapper;
+
+    private final RabbitTemplate rabbitTemplate;
 
 
     @Override
@@ -80,17 +84,30 @@ public class UserServiceImpl implements UserService {
         return userMapper.toResponseDTOList(users);
     }
 
+    @Transactional
     @Override
     public UserResponseDTO updateUser(Long id, UserRequestDTO userRequestDTO) {
 
         // in future return own exception
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+        String oldEmail = user.getEmail();
 
         userMapper.updateEntityFromDTO(userRequestDTO, user);
         System.out.println("Updating user: " + user.getEmail());
 
-        return userMapper.toResponseDTO(userRepository.save(user));
+        User saved = userRepository.save(user);
+
+        UserUpdateEventDTO event = new UserUpdateEventDTO(
+            oldEmail,
+            saved.getEmail(),
+            saved.getFirstName(),
+            saved.getLastName()
+        );
+
+        rabbitTemplate.convertAndSend("user_exchange", "user_update_queue", event);
+
+        return userMapper.toResponseDTO(saved);
     }
 
     @Override
