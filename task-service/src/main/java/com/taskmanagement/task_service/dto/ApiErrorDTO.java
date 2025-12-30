@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class ApiError {
+public class ApiErrorDTO {
     private String code;
     private String message;
 }
