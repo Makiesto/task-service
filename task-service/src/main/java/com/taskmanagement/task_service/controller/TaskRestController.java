@@ -3,7 +3,7 @@ package com.taskmanagement.task_service.controller;
 import com.taskmanagement.task_service.dto.TaskDTO;
 import com.taskmanagement.task_service.service.TaskService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,10 +12,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/tasks")
+@RequiredArgsConstructor
 public class TaskRestController {
 
-    @Autowired
-    private TaskService taskService;
+    private final TaskService taskService;
 
     @GetMapping
     public ResponseEntity<List<TaskDTO>> getTasks() {
@@ -47,4 +47,21 @@ public class TaskRestController {
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("/{id}/assign")
+    public ResponseEntity<TaskDTO>  assignTaskToUser(@PathVariable Long id, @RequestBody AssignRequest request) {
+
+        TaskDTO taskUpdated = taskService.assignTaskToUser(id, request.assignedToEmail());
+        return ResponseEntity.ok(taskUpdated);
+    }
+
+    @PatchMapping("{id}/status")
+    public ResponseEntity<TaskDTO> updateTaskStatus(@PathVariable Long id, @RequestBody StatusUpdateRequest request) {
+
+        TaskDTO taskUpdated = taskService.updateTaskStatus(id, request.status());
+
+        return ResponseEntity.ok(taskUpdated);
+    }
+
+    record StatusUpdateRequest(String status) {}
+    record AssignRequest(String assignedToEmail) {}
 }
