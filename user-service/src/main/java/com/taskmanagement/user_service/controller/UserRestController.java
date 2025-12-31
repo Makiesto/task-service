@@ -49,5 +49,4 @@ public class UserRestController {
     public ResponseEntity<UserResponseDTO> findByEmail(@PathVariable String email) {
         return ResponseEntity.ok(userService.findUserByEmail(email));
     }
-
 }
