@@ -4,6 +4,7 @@ import com.taskmanagement.task_service.client.UserClient;
 import com.taskmanagement.task_service.dto.TaskDTO;
 import com.taskmanagement.task_service.dto.UserDTO;
 import com.taskmanagement.task_service.entity.Task;
+import com.taskmanagement.task_service.entity.TaskStatus;
 import com.taskmanagement.task_service.exception.DeadlineBeforeTodayException;
 import com.taskmanagement.task_service.exception.DuplicateTitleException;
 import com.taskmanagement.task_service.mapper.TaskMapper;
@@ -94,6 +95,37 @@ public class TaskServiceImpl implements TaskService {
         taskRepository.delete(task);
         System.out.println("Deleted task  with id: " + id);
 
+    }
+
+    @Override
+    public TaskDTO assignTaskToUser(Long id, String assignedToEmail) {
+
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Task not found with id: " + id));
+
+        validateAssignedUser(assignedToEmail);
+
+        task.setAssignedToEmail(assignedToEmail);
+        System.out.println("Assigning task: " + task.getTitle());
+
+        Task savedTask = taskRepository.save(task);
+
+        return taskMapper.toDTO(savedTask);
+
+    }
+
+    @Override
+    public TaskDTO updateTaskStatus(Long id, String newStatus) {
+
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Task not found with id: " + id));
+
+        task.setStatus(TaskStatus.valueOf(newStatus.toUpperCase()));
+        System.out.println("Updating task: " + task.getTitle());
+
+        Task savedTask = taskRepository.save(task);
+
+        return taskMapper.toDTO(savedTask);
     }
 
     private void validateAssignedUser(String email) {
