@@ -9,6 +9,7 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.List;
 
@@ -19,9 +20,11 @@ public class UserUpdateListener {
     private final TaskRepository taskRepository;
     private final RabbitTemplate rabbitTemplate;
 
+    @Value("${spring.rabbitmq.exchange.task}")
+    private String taskExchange;
 
     @Transactional
-    @RabbitListener(queues = "${spring.rabbitmq.queue}")
+    @RabbitListener(queues = "${spring.rabbitmq.queue.user}")
     public void handleUserUpdate(UserUpdateEventDTO event) {
         System.out.println("Received message from RabbitMQ, change email  " + event.getOldEmail() + " to " + event.getNewEmail());
 
@@ -45,9 +48,9 @@ public class UserUpdateListener {
                     .build();
 
             rabbitTemplate.convertAndSend(
-                "task_exchange",
-                "task.event.email_changed",
-                notificationEvent
+                    taskExchange,
+                    "task.event.email_changed",
+                    notificationEvent
             );
 
             System.out.println("Sent email change notification for task: " + task.getTitle());
