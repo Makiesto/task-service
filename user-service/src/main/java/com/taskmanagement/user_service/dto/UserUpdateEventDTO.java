@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserUpdateEventDTO {
+    private Long userId;
     private String oldEmail;
     private String newEmail;
     private String firstName;
