@@ -14,11 +14,11 @@ import java.time.LocalDateTime;
 @Builder
 public class TaskEventDTO {
 
-    public Long userId;
-    public String userEmail;
-    public String userName;
-    public String taskTitle;
-    public LocalDateTime deadline;
-    NotificationType notificationType;
+    private Long userId;
+    private String userEmail;
+    private String userName;
+    private String taskTitle;
+    private LocalDateTime deadline;
+    private String eventType;
 
 }
