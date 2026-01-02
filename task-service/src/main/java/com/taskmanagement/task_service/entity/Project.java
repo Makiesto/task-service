@@ -1,10 +1,7 @@
 package com.taskmanagement.task_service.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,9 +23,15 @@ public class Project {
 
     private String description;
 
-    @OneToMany(mappedBy="project", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
+    @ToString.Exclude
     private List<Task> tasks;
 
     private LocalDateTime createdAt;
+
+    @PrePersist
+    public void onPrePersist() {
+        this.createdAt = LocalDateTime.now();
+    }
 
 }
