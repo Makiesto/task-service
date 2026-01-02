@@ -2,6 +2,7 @@ package com.taskmanagement.user_service.service;
 
 import com.taskmanagement.user_service.dto.TeamDTO;
 import com.taskmanagement.user_service.entity.Team;
+import com.taskmanagement.user_service.entity.User;
 import com.taskmanagement.user_service.mapper.TeamMapper;
 import com.taskmanagement.user_service.repository.TeamRepository;
 import lombok.RequiredArgsConstructor;
@@ -88,6 +89,10 @@ public class TeamServiceImpl implements TeamService {
         // in future return own exception
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new RuntimeException("Team not found with id: " + teamId));
+
+        for (User member : team.getMembers()) {
+        member.setTeam(null);
+    }
 
         teamRepository.delete(team);
         System.out.println("Deleted team with id: " + teamId);
