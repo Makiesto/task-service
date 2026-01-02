@@ -99,10 +99,11 @@ public class UserServiceImpl implements UserService {
         User saved = userRepository.save(user);
 
         UserUpdateEventDTO event = new UserUpdateEventDTO(
-            oldEmail,
-            saved.getEmail(),
-            saved.getFirstName(),
-            saved.getLastName()
+                saved.getId(),
+                oldEmail,
+                saved.getEmail(),
+                saved.getFirstName(),
+                saved.getLastName()
         );
 
         rabbitTemplate.convertAndSend("user_exchange", "user_update_queue", event);
