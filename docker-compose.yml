@@ -11,7 +11,7 @@ services:
     volumes:
       - task-data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "5435:5432"
     networks:
       - task-network
 
@@ -26,6 +26,20 @@ services:
       - "5433:5432" 
     volumes:
       - user-data:/var/lib/postgresql/data
+    networks:
+      - task-network
+  
+  postgres-notifications:
+    container_name: postgres-notifications
+    image: postgres:15
+    environment:
+      POSTGRES_DB: ${POSTGRES_NOTIFICATIONS_DB:-notificationsdb}
+      POSTGRES_USER: ${POSTGRES_USER3:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD3:-postgres}
+    volumes:
+      - notification-data:/var/lib/postgresql/data
+    ports:
+      - "5434:5432"
     networks:
       - task-network
 
@@ -67,5 +81,6 @@ networks:
 volumes:
     task-data:
     user-data:
+    notification-data:
     pgadmin:
     rabbitmq:
