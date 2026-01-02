@@ -16,10 +16,10 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitMQConfig {
 
-    @Value("${spring.rabbitmq.queue}")
+    @Value("${spring.rabbitmq.queue.user}")
     private String queueName;
 
-    @Value("${spring.rabbitmq.user_exchange}")
+    @Value("${spring.rabbitmq.exchange.user}")
     private String exchangeName;
 
 

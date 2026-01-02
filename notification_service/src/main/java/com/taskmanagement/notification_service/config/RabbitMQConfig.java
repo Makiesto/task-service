@@ -17,7 +17,7 @@ public class RabbitMQConfig {
     @Value("${spring.rabbitmq.queue.notification}")
     private String notificationQueue;
 
-    @Value("${spring.rabbitmq.exchange.main}")
+    @Value("${spring.rabbitmq.exchange.task}")
     private String mainExchange;
 
     @Value("${spring.rabbitmq.routing.key.notification}")

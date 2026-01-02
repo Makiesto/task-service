@@ -5,17 +5,19 @@ import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.JacksonJsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class RabbitMQConfig {
 
-    public static final String EXCHANGE = "user_exchange";
+    @Value("${spring.rabbitmq.exchange.user}")
+    private String userExchange;
 
     @Bean
     public TopicExchange userExchange() {
-        return new TopicExchange(EXCHANGE);
+        return new TopicExchange(userExchange);
     }
 
     @Bean
