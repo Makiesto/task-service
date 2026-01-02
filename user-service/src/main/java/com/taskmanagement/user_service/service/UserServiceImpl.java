@@ -8,6 +8,7 @@ import com.taskmanagement.user_service.entity.UserRole;
 import com.taskmanagement.user_service.mapper.UserMapper;
 import com.taskmanagement.user_service.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +25,9 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
 
     private final RabbitTemplate rabbitTemplate;
+
+    @Value("${spring.rabbitmq.exchange.user}")
+    private String userExchange;
 
 
     @Override
@@ -106,7 +110,7 @@ public class UserServiceImpl implements UserService {
                 saved.getLastName()
         );
 
-        rabbitTemplate.convertAndSend("user_exchange", "user_update_queue", event);
+        rabbitTemplate.convertAndSend(userExchange, "user.update", event);
 
         return userMapper.toResponseDTO(saved);
     }
