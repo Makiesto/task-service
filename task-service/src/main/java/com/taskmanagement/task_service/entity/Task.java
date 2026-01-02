@@ -2,9 +2,13 @@ package com.taskmanagement.task_service.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Builder
 @Entity
@@ -18,7 +22,7 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String title;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -44,6 +48,9 @@ public class Task {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Priority priority;
+
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments;
 
     @PrePersist
     public void onPrePersist() {
