@@ -28,22 +28,30 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     @Transactional
     public void createNotification(TaskEventDTO event) {
+        saveSingleNotification(event, NotificationType.valueOf(event.getEventType()));
 
-        NotificationType type = NotificationType.valueOf(event.getEventType());
+        if (isCreationEvent(event.getEventType()) && event.getDeadline() != null) {
 
-        NotificationTemplate notificationTemplate = templateRepository.findByType(type)
-                .orElseThrow(() -> new RuntimeException("Template not found."));
+            if (event.getDeadline().isAfter(LocalDateTime.now().plusDays(3))) {
+                saveSingleNotification(event, NotificationType.TASK_REMINDER_3D);
+            }
 
-        String message = notificationTemplate.getBody()
-                .replace("{userName}",  event.getUserName())
-                .replace("{taskTitle}",  event.getTaskTitle())
-                .replace("{deadline}", event.getDeadline() != null ? event.getDeadline().toString() : "not set");
+            if (event.getDeadline().isAfter(LocalDateTime.now().plusHours(24))) {
+                saveSingleNotification(event, NotificationType.TASK_REMINDER_24H);
+            }
+        }
+    }
 
-        LocalDateTime scheduleTime = switch (type){
-            case TASK_CREATED, TASK_ASSIGNED, TASK_COMPLETED, TASK_EMAIL_CHANGED ->  LocalDateTime.now();
-            case TASK_REMINDER_3D ->   event.getDeadline().minusDays(3);
-            case TASK_REMINDER_24H ->   event.getDeadline().minusHours(24);
-        };
+    private void saveSingleNotification(TaskEventDTO event, NotificationType type) {
+        NotificationTemplate template = templateRepository.findByType(type)
+                .orElseThrow(() -> new RuntimeException("Template not found for: " + type));
+
+        String message = template.getBody()
+                .replace("{userName}", event.getUserName())
+                .replace("{taskTitle}", event.getTaskTitle())
+                .replace("{deadline}", event.getDeadline().toString());
+
+        LocalDateTime scheduleTime = calculateScheduleTime(type, event.getDeadline());
 
         Notification notification = Notification.builder()
                 .userId(event.getUserId())
@@ -56,6 +64,25 @@ public class NotificationServiceImpl implements NotificationService {
 
         notificationRepository.save(notification);
     }
+
+    private boolean isCreationEvent(String type) {
+        return "TASK_CREATED".equals(type) || "TASK_ASSIGNED".equals(type);
+    }
+
+    private LocalDateTime calculateScheduleTime(NotificationType type, LocalDateTime deadline) {
+    return switch (type) {
+        case TASK_CREATED, TASK_ASSIGNED, TASK_COMPLETED, TASK_EMAIL_CHANGED ->
+            LocalDateTime.now();
+
+        case TASK_REMINDER_3D ->
+            deadline.minusDays(3);
+
+        case TASK_REMINDER_24H ->
+            deadline.minusHours(24);
+
+        default -> LocalDateTime.now();
+    };
+}
 
     @Override
     @Scheduled(fixedRate = 60000)
@@ -77,8 +104,7 @@ public class NotificationServiceImpl implements NotificationService {
 
                 notification.setStatus(NotificationStatus.SENT);
                 notification.setSentAt(LocalDateTime.now());
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 notification.setStatus(NotificationStatus.FAILED);
             }
         }
