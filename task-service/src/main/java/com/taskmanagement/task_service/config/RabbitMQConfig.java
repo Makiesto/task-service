@@ -1,4 +1,4 @@
-package com.taskmanagement.task_service.rabbitmq;
+package com.taskmanagement.task_service.config;
 
 
 import org.springframework.amqp.core.Binding;
