@@ -105,6 +105,8 @@ public class NotificationServiceImpl implements NotificationService {
                 notification.setStatus(NotificationStatus.SENT);
                 notification.setSentAt(LocalDateTime.now());
             } catch (Exception e) {
+                System.err.println("Failed to send notification ID " + notification.getId() + ": " + e.getMessage());
+                e.printStackTrace();
                 notification.setStatus(NotificationStatus.FAILED);
             }
         }
