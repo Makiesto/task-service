@@ -3,13 +3,15 @@ package com.taskmanagement.user_service.service;
 import com.taskmanagement.user_service.dto.UserRequestDTO;
 import com.taskmanagement.user_service.dto.UserResponseDTO;
 import com.taskmanagement.user_service.dto.UserUpdateEventDTO;
+import com.taskmanagement.user_service.entity.Team;
 import com.taskmanagement.user_service.entity.User;
 import com.taskmanagement.user_service.entity.UserRole;
 import com.taskmanagement.user_service.mapper.UserMapper;
+import com.taskmanagement.user_service.repository.TeamRepository;
 import com.taskmanagement.user_service.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +24,8 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 
+    private final TeamRepository teamRepository;
+
     private final UserMapper userMapper;
 
     private final RabbitTemplate rabbitTemplate;
@@ -31,6 +35,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
+    @Transactional
     public UserResponseDTO createUser(UserRequestDTO userRequestDTO) {
 
         // future improvement - add own exception
@@ -40,6 +45,14 @@ public class UserServiceImpl implements UserService {
 
         User user = userMapper.toEntity(userRequestDTO);
         // TODO: Hash password
+
+        if (userRequestDTO.getTeamName() != null && !userRequestDTO.getTeamName().isBlank()) {
+            Team team = teamRepository.findByName(userRequestDTO.getTeamName())
+                    .orElseThrow(() -> new RuntimeException("Team not found: " + userRequestDTO.getTeamName()));
+
+            user.setTeam(team);
+        }
+
         User saved = userRepository.save(user);
         System.out.println("Creating user with name: " + saved.getFirstName());
 
@@ -97,8 +110,22 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
         String oldEmail = user.getEmail();
 
+        if (!oldEmail.equals(userRequestDTO.getEmail()) && userRepository.existsByEmail(userRequestDTO.getEmail())) {
+            throw new RuntimeException("Email already taken");
+        }
+
         userMapper.updateEntityFromDTO(userRequestDTO, user);
         System.out.println("Updating user: " + user.getEmail());
+
+        if (userRequestDTO.getTeamName() != null) {
+            if (userRequestDTO.getTeamName().isBlank()) {
+                user.setTeam(null);
+            } else {
+                Team newTeam = teamRepository.findByName(userRequestDTO.getTeamName())
+                        .orElseThrow(() -> new RuntimeException("Team not found: " + userRequestDTO.getTeamName()));
+                user.setTeam(newTeam);
+            }
+        }
 
         User saved = userRepository.save(user);
 
