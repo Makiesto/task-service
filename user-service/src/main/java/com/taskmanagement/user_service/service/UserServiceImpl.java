@@ -46,14 +46,7 @@ public class UserServiceImpl implements UserService {
         User user = userMapper.toEntity(userRequestDTO);
         // TODO: Hash password
 
-        if (userRequestDTO.getTeamName() != null && !userRequestDTO.getTeamName().isBlank()) {
-            Team team = teamRepository.findByName(userRequestDTO.getTeamName())
-                    .orElseThrow(() -> new RuntimeException("Team not found: " + userRequestDTO.getTeamName()));
-
-            user.setTeam(team);
-        }
-
-        User saved = userRepository.save(user);
+        User saved = setTeamName(userRequestDTO, user);
         System.out.println("Creating user with name: " + saved.getFirstName());
 
         return userMapper.toResponseDTO(saved);
@@ -117,17 +110,7 @@ public class UserServiceImpl implements UserService {
         userMapper.updateEntityFromDTO(userRequestDTO, user);
         System.out.println("Updating user: " + user.getEmail());
 
-        if (userRequestDTO.getTeamName() != null) {
-            if (userRequestDTO.getTeamName().isBlank()) {
-                user.setTeam(null);
-            } else {
-                Team newTeam = teamRepository.findByName(userRequestDTO.getTeamName())
-                        .orElseThrow(() -> new RuntimeException("Team not found: " + userRequestDTO.getTeamName()));
-                user.setTeam(newTeam);
-            }
-        }
-
-        User saved = userRepository.save(user);
+        User saved = setTeamName(userRequestDTO, user);
 
         UserUpdateEventDTO event = new UserUpdateEventDTO(
                 saved.getId(),
@@ -140,6 +123,18 @@ public class UserServiceImpl implements UserService {
         rabbitTemplate.convertAndSend(userExchange, "user.update", event);
 
         return userMapper.toResponseDTO(saved);
+    }
+
+    private User setTeamName(UserRequestDTO userRequestDTO, User user) {
+        if (userRequestDTO.getTeamName() != null && !userRequestDTO.getTeamName().isBlank()) {
+            Team team = teamRepository.findByName(userRequestDTO.getTeamName())
+                    .orElseThrow(() -> new RuntimeException("Team not found: " + userRequestDTO.getTeamName()));
+            user.setTeam(team);
+        } else {
+            user.setTeam(null);
+        }
+
+        return userRepository.save(user);
     }
 
     @Override
