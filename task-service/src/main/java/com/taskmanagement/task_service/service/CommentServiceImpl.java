@@ -1,5 +1,6 @@
 package com.taskmanagement.task_service.service;
 
+import com.taskmanagement.task_service.client.UserClient;
 import com.taskmanagement.task_service.dto.CommentDTO;
 import com.taskmanagement.task_service.entity.Comment;
 import com.taskmanagement.task_service.entity.Task;
@@ -20,11 +21,16 @@ public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
     private final TaskRepository taskRepository;
     private final CommentMapper commentMapper;
+    private final UserClient userClient;
 
     @Override
     public CommentDTO addComment(CommentDTO commentDTO) {
         Task task = taskRepository.findById(commentDTO.getTaskId())
                 .orElseThrow(() -> new RuntimeException("Task not found"));
+
+        if (!userClient.checkIfUserExists(commentDTO.getUserId())) {
+            throw new RuntimeException("User with ID " + commentDTO.getUserId() + " does not exist!");
+        }
 
         Comment comment = commentMapper.toEntity(commentDTO);
         comment.setTask(task);
