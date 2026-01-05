@@ -1,23 +1,29 @@
 package com.taskmanagement.task_service.rabbitmq;
 
+import com.taskmanagement.task_service.client.UserClient;
 import com.taskmanagement.task_service.dto.TaskEventDTO;
+import com.taskmanagement.task_service.dto.UserDTO;
 import com.taskmanagement.task_service.dto.UserUpdateEventDTO;
 import com.taskmanagement.task_service.entity.Task;
+import com.taskmanagement.task_service.repository.CommentRepository;
 import com.taskmanagement.task_service.repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class UserUpdateListener {
+public class UserEventListener {
 
     private final TaskRepository taskRepository;
+    private final CommentRepository commentRepository;
+
+    private final UserClient userClient;
     private final RabbitTemplate rabbitTemplate;
 
     @Value("${spring.rabbitmq.exchange.task}")
@@ -58,5 +64,21 @@ public class UserUpdateListener {
 
         taskRepository.saveAll(tasksToUpdate);
         System.out.println("Tasks updated for email " + event.getNewEmail());
+    }
+
+    @Transactional
+    @RabbitListener(queues = "${spring.rabbitmq.queue.user_delete}")
+    public void handleUserDelete(Long userId) {
+        System.out.println("Cleaning up comments. for user ID: " + userId + ".");
+
+        commentRepository.deleteByUserId(userId);
+
+        try {
+            UserDTO user = userClient.getUserById(userId);
+            taskRepository.nullifyAssignedTasksByEmail(user.getEmail());
+            System.out.println("Tasks nullified for email: " + user.getEmail());
+        } catch (Exception e) {
+            System.out.println("Could not nullify tasks: User not found or service down");
+        }
     }
 }
