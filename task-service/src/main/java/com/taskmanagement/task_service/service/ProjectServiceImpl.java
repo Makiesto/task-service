@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -21,7 +20,6 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public ProjectDTO createProject(ProjectDTO projectDTO) {
-        System.out.println("Creating new project with name: " + projectDTO.getName());
 
         if (projectRepository.existsByName(projectDTO.getName())) {
             throw new RuntimeException("Project with name '" + projectDTO.getName() + "' already exists");
@@ -29,20 +27,22 @@ public class ProjectServiceImpl implements ProjectService {
 
         Project project = projectMapper.toEntity(projectDTO);
         Project savedProject = projectRepository.save(project);
+        System.out.println("Creating new project: " + projectDTO.getName());
 
         return projectMapper.toDTO(savedProject);
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public List<ProjectDTO> findAllProjects() {
         System.out.println("Finding all projects");
 
-        return projectRepository.findAll().stream().map(projectMapper::toDTO).collect(Collectors.toList());
+        List<Project> projects = projectRepository.findAll();
+        return projectMapper.toDTOList(projects);
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public ProjectDTO findProjectById(Long id) {
         System.out.println("Finding project with id: " + id);
         Project project = projectRepository.findById(id)
@@ -73,7 +73,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public void deleteProject(Long id) {
-        System.out.println("Deleting project with id: "+ id);
+        System.out.println("Deleting project with id: " + id);
         if (!projectRepository.existsById(id)) {
             throw new RuntimeException("Cannot delete. Project not found with id: " + id);
         }
