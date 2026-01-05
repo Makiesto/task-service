@@ -116,13 +116,16 @@ public class TaskServiceImpl implements TaskService {
             throw new DeadlineBeforeTodayException("Task deadline cannot be set in past");
         }
 
-        Project project = projectRepository.findById(taskDTO.getProjectId())
-                .orElseThrow(() -> new RuntimeException("Project not found with id: " + taskDTO.getProjectId()));
-
-        task.setProject(project);
-
         taskMapper.updateEntityFromDTO(taskDTO, task);
         System.out.println("Updating task: " + task.getTitle());
+
+        if (taskDTO.getProjectId() != null) {
+            Project project = projectRepository.findById(taskDTO.getProjectId())
+                    .orElseThrow(() -> new RuntimeException("Project not found with id: " + taskDTO.getProjectId()));
+            task.setProject(project);
+        } else {
+            task.setProject(null);
+        }
 
         return taskMapper.toDTO(taskRepository.save(task));
     }
