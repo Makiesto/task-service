@@ -62,13 +62,17 @@ public class TaskServiceImpl implements TaskService {
             throw new DeadlineBeforeTodayException("Task deadline cannot be set in past");
         }
 
-        Project project = projectRepository.findById(taskDTO.getProjectId())
-            .orElseThrow(() -> new RuntimeException("Project not found with id: " + taskDTO.getProjectId()));
-
         Task taskEntity = taskMapper.toEntity(taskDTO);
-        taskEntity.setProject(project);
-        System.out.println("Creating task: " + taskEntity.getTitle());
 
+        if (taskDTO.getProjectId() != null) {
+            Project project = projectRepository.findById(taskDTO.getProjectId())
+                    .orElseThrow(() -> new RuntimeException("Project not found with id: " + taskDTO.getProjectId()));
+            taskEntity.setProject(project);
+        } else {
+            taskEntity.setProject(null);
+        }
+
+        System.out.println("Creating task: " + taskEntity.getTitle());
         Task savedTask = taskRepository.save(taskEntity);
 
         if (savedTask.getAssignedToEmail() != null) {
@@ -111,6 +115,11 @@ public class TaskServiceImpl implements TaskService {
         if (taskDTO.getDeadline().isBefore(LocalDateTime.now())) {
             throw new DeadlineBeforeTodayException("Task deadline cannot be set in past");
         }
+
+        Project project = projectRepository.findById(taskDTO.getProjectId())
+                .orElseThrow(() -> new RuntimeException("Project not found with id: " + taskDTO.getProjectId()));
+
+        task.setProject(project);
 
         taskMapper.updateEntityFromDTO(taskDTO, task);
         System.out.println("Updating task: " + task.getTitle());
