@@ -19,6 +19,9 @@ public class RabbitMQConfig {
     @Value("${spring.rabbitmq.queue.user}")
     private String queueName;
 
+    @Value("${spring.rabbitmq.queue.user_delete}")
+    private String userDeleteQueue;
+
     @Value("${spring.rabbitmq.exchange.user}")
     private String exchangeName;
 
@@ -29,6 +32,11 @@ public class RabbitMQConfig {
     }
 
     @Bean
+    public Queue userDeleteQueue() {
+        return new Queue(userDeleteQueue, true);
+    }
+
+    @Bean
     public TopicExchange exchange() {
         return new TopicExchange(exchangeName);
     }
@@ -36,6 +44,13 @@ public class RabbitMQConfig {
     @Bean
     public Binding binding(Queue queue, TopicExchange exchange) {
         return BindingBuilder.bind(queue).to(exchange).with(queueName);
+    }
+
+    @Bean
+    public Binding userDeleteBinding(Queue userDeleteQueue, TopicExchange userExchange) {
+        return BindingBuilder.bind(userDeleteQueue)
+                .to(userExchange)
+                .with("user.event.deleted");
     }
 
     @Bean
