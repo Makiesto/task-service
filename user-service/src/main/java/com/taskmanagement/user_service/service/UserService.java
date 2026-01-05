@@ -16,4 +16,6 @@ public interface UserService {
 
     UserResponseDTO updateUser(Long id, UserRequestDTO user);
     void deleteUser(Long id);
+
+    boolean existsById(Long id);
 }

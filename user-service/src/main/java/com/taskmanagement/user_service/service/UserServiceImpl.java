@@ -152,4 +152,10 @@ public class UserServiceImpl implements UserService {
         userRepository.delete(user);
         System.out.println("Deleted user with id: " + id);
     }
+
+    @Override
+    public boolean existsById(Long id) {
+        System.out.println("Checking existence of user with id: " + id);
+        return userRepository.existsById(id);
+    }
 }
