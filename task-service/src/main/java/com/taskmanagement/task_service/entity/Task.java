@@ -41,11 +41,9 @@ public class Task {
     @NotNull
     private LocalDateTime deadline;
 
-    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private TaskStatus status;
 
-    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Priority priority;
 

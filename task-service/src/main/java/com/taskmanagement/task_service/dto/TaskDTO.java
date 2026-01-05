@@ -27,8 +27,6 @@ public class TaskDTO {
     @NotNull
     @Future(message = "Deadline must be in future")
     private LocalDateTime deadline;
-    @NotNull
     private TaskStatus status;
-    @NotNull
     private Priority priority;
 }
