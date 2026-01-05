@@ -25,6 +25,8 @@ public class Team {
 
     private String description;
 
-    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "team")
     private List<User> members;
+
+
 }

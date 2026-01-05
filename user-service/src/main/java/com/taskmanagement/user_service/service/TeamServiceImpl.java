@@ -14,7 +14,6 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class TeamServiceImpl implements TeamService {
 
     private final TeamRepository teamRepository;
@@ -71,6 +70,7 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
+    @Transactional
     public TeamDTO updateTeam(Long id, TeamDTO teamDTO) {
 
         // in future return own exception
@@ -84,6 +84,7 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
+    @Transactional
     public void deleteTeam(Long teamId) {
 
         // in future return own exception

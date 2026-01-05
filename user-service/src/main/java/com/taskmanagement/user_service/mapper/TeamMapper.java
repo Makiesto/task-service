@@ -13,6 +13,9 @@ import java.util.List;
 public interface TeamMapper {
 
     TeamDTO toDTO(Team team);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "members", ignore = true)
     Team toEntity(TeamDTO teamDTO);
 
     List<TeamDTO> toDTOList(List<Team> teams);
