@@ -4,11 +4,13 @@ import com.taskmanagement.task_service.client.UserClient;
 import com.taskmanagement.task_service.dto.TaskDTO;
 import com.taskmanagement.task_service.dto.TaskEventDTO;
 import com.taskmanagement.task_service.dto.UserDTO;
+import com.taskmanagement.task_service.entity.Project;
 import com.taskmanagement.task_service.entity.Task;
 import com.taskmanagement.task_service.entity.TaskStatus;
 import com.taskmanagement.task_service.exception.DeadlineBeforeTodayException;
 import com.taskmanagement.task_service.exception.DuplicateTitleException;
 import com.taskmanagement.task_service.mapper.TaskMapper;
+import com.taskmanagement.task_service.repository.ProjectRepository;
 import com.taskmanagement.task_service.repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -22,6 +24,7 @@ import java.util.List;
 public class TaskServiceImpl implements TaskService {
 
     private final TaskRepository taskRepository;
+    private final ProjectRepository projectRepository;
 
     private final TaskMapper taskMapper;
 
@@ -59,7 +62,11 @@ public class TaskServiceImpl implements TaskService {
             throw new DeadlineBeforeTodayException("Task deadline cannot be set in past");
         }
 
+        Project project = projectRepository.findById(taskDTO.getProjectId())
+            .orElseThrow(() -> new RuntimeException("Project not found with id: " + taskDTO.getProjectId()));
+
         Task taskEntity = taskMapper.toEntity(taskDTO);
+        taskEntity.setProject(project);
         System.out.println("Creating task: " + taskEntity.getTitle());
 
         Task savedTask = taskRepository.save(taskEntity);
