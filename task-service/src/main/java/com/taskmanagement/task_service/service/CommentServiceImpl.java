@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -42,11 +43,19 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional(readOnly = true)
     public List<CommentDTO> getCommentsByTaskId(Long taskId) {
-        return commentMapper.toDTOList(commentRepository.findByTaskId(taskId));
+        List<Comment> comments = commentRepository.findByTaskId(taskId);
+
+        if (comments.isEmpty()) return Collections.emptyList();
+
+        return commentMapper.toDTOList(comments);
     }
 
     @Override
     public void deleteComment(Long id) {
-        commentRepository.deleteById(id);
+        Comment comment = commentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Comment not found with id: " + id));
+
+        commentRepository.delete(comment);
+        System.out.println("Deleted comment with id: " + id);
     }
 }
