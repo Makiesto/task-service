@@ -13,4 +13,7 @@ public interface UserClient {
 
     @GetMapping("/email/{email}")
     UserDTO getUserByEmail(@PathVariable("email") String assignedToEmail);
+
+    @GetMapping("/{id}/exists")
+    boolean checkIfUserExists(@PathVariable("id") Long id);
 }
