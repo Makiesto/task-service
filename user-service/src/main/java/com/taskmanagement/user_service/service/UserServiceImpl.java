@@ -150,6 +150,7 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
 
         userRepository.delete(user);
+        rabbitTemplate.convertAndSend(userExchange, "user.event.deleted", id);
         System.out.println("Deleted user with id: " + id);
     }
 
