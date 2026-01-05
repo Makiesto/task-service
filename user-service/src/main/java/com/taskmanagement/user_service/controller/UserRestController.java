@@ -49,4 +49,9 @@ public class UserRestController {
     public ResponseEntity<UserResponseDTO> findByEmail(@PathVariable String email) {
         return ResponseEntity.ok(userService.findUserByEmail(email));
     }
+
+    @GetMapping("/{id}/exists")
+    public ResponseEntity<Boolean> existsById(@PathVariable Long id) {
+        return ResponseEntity.ok(userService.existsById(id));
+    }
 }
