@@ -8,8 +8,6 @@ import com.taskmanagement.notification_service.entity.NotificationType;
 import com.taskmanagement.notification_service.repository.NotificationRepository;
 import com.taskmanagement.notification_service.repository.NotificationTemplateRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +21,8 @@ public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final NotificationTemplateRepository templateRepository;
-    private final JavaMailSender mailSender;
+
+    private final EmailSenderComponent emailSender;
 
     @Override
     @Transactional
@@ -70,23 +69,19 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     private LocalDateTime calculateScheduleTime(NotificationType type, LocalDateTime deadline) {
-    return switch (type) {
-        case TASK_CREATED, TASK_ASSIGNED, TASK_COMPLETED, TASK_EMAIL_CHANGED ->
-            LocalDateTime.now();
+        return switch (type) {
 
-        case TASK_REMINDER_3D ->
-            deadline.minusDays(3);
+            case TASK_REMINDER_3D -> deadline.minusDays(3);
 
-        case TASK_REMINDER_24H ->
-            deadline.minusHours(24);
+            case TASK_REMINDER_24H -> deadline.minusHours(24);
 
-        default -> LocalDateTime.now();
-    };
-}
+            default -> LocalDateTime.now();
+        };
+    }
 
     @Override
-    @Scheduled(fixedRate = 60000)
     @Transactional
+    @Scheduled(fixedDelay = 5000)
     public void sendNotification() {
 
         List<Notification> pending = notificationRepository
@@ -94,20 +89,14 @@ public class NotificationServiceImpl implements NotificationService {
 
         for (Notification notification : pending) {
             try {
-                SimpleMailMessage mailMessage = new SimpleMailMessage();
-                mailMessage.setTo(notification.getRecipientEmail());
-                mailMessage.setSubject("Notification has been sent");
-                mailMessage.setText(notification.getMessage());
-                mailMessage.setFrom("notification@tasksystem.com");
-
-                mailSender.send(mailMessage);
+                emailSender.sendSingleEmail(notification);
 
                 notification.setStatus(NotificationStatus.SENT);
-                notification.setSentAt(LocalDateTime.now());
+                notificationRepository.save(notification);
             } catch (Exception e) {
                 System.err.println("Failed to send notification ID " + notification.getId() + ": " + e.getMessage());
-                e.printStackTrace();
                 notification.setStatus(NotificationStatus.FAILED);
+                notificationRepository.save(notification);
             }
         }
 
