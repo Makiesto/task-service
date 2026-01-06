@@ -102,7 +102,7 @@ public class UserServiceImpl implements UserService {
         }
 
         List<User> users = userRepository.findByTeamName(teamName);
-        
+
         return userMapper.toResponseDTOList(users);
     }
 
