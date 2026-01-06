@@ -1,7 +1,9 @@
 package com.taskmanagement.user_service.controller;
 
 import com.taskmanagement.user_service.dto.TeamDTO;
+import com.taskmanagement.user_service.dto.UserResponseDTO;
 import com.taskmanagement.user_service.service.TeamServiceImpl;
+import com.taskmanagement.user_service.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +17,7 @@ import java.util.List;
 public class TeamRestContoller {
 
     private final TeamServiceImpl teamService;
+    private final UserService userService;
 
     @GetMapping
     public ResponseEntity<List<TeamDTO>> getAllTeams() {
@@ -46,5 +49,11 @@ public class TeamRestContoller {
     @GetMapping("/name/{name}")
     public ResponseEntity<TeamDTO> getTeamsByName(@PathVariable String name) {
         return ResponseEntity.ok(teamService.findTeamByName(name));
+    }
+
+    @GetMapping("/name/{name}/users")
+    public ResponseEntity<List<UserResponseDTO>> getUsersByTeamName(@PathVariable String name) {
+        List<UserResponseDTO> users = userService.findUsersByTeamName(name);
+        return ResponseEntity.ok(users);
     }
 }
