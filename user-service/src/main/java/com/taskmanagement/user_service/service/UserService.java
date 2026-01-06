@@ -18,4 +18,6 @@ public interface UserService {
     void deleteUser(Long id);
 
     boolean existsById(Long id);
+
+    List<UserResponseDTO> findUsersByTeamName(String teamName);
 }
