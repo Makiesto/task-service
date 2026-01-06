@@ -1,0 +1,84 @@
+package com.taskmanagement.task_service.rabbitmq;
+
+import com.taskmanagement.task_service.client.UserClient;
+import com.taskmanagement.task_service.dto.TaskEventDTO;
+import com.taskmanagement.task_service.dto.UserDTO;
+import com.taskmanagement.task_service.dto.UserUpdateEventDTO;
+import com.taskmanagement.task_service.entity.Task;
+import com.taskmanagement.task_service.repository.CommentRepository;
+import com.taskmanagement.task_service.repository.TaskRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+@Component
+@RequiredArgsConstructor
+public class UserEventListener {
+
+    private final TaskRepository taskRepository;
+    private final CommentRepository commentRepository;
+
+    private final UserClient userClient;
+    private final RabbitTemplate rabbitTemplate;
+
+    @Value("${spring.rabbitmq.exchange.task}")
+    private String taskExchange;
+
+    @Transactional
+    @RabbitListener(queues = "${spring.rabbitmq.queue.user}")
+    public void handleUserUpdate(UserUpdateEventDTO event) {
+        System.out.println("Received message from RabbitMQ, change email  " + event.getOldEmail() + " to " + event.getNewEmail());
+
+        List<Task> tasksToUpdate = taskRepository.findByAssignedToEmail(event.getOldEmail());
+
+        if (tasksToUpdate.isEmpty()) {
+            System.out.println("No tasks to update for email: " + event.getOldEmail());
+            return;
+        }
+
+        tasksToUpdate.forEach(task -> {
+            task.setAssignedToEmail(event.getNewEmail());
+
+            TaskEventDTO notificationEvent = TaskEventDTO.builder()
+                    .userId(event.getUserId())
+                    .userEmail(event.getNewEmail())
+                    .userName(event.getFirstName() + " " + event.getLastName())
+                    .taskTitle(task.getTitle())
+                    .deadline(task.getDeadline())
+                    .eventType("TASK_EMAIL_CHANGED")
+                    .build();
+
+            rabbitTemplate.convertAndSend(
+                    taskExchange,
+                    "task.event.email_changed",
+                    notificationEvent
+            );
+
+            System.out.println("Sent email change notification for task: " + task.getTitle());
+        });
+
+        taskRepository.saveAll(tasksToUpdate);
+        System.out.println("Tasks updated for email " + event.getNewEmail());
+    }
+
+    @Transactional
+    @RabbitListener(queues = "${spring.rabbitmq.queue.user_delete}")
+    public void handleUserDelete(Long userId) {
+        System.out.println("Cleaning up comments. for user ID: " + userId + ".");
+
+        commentRepository.deleteByUserId(userId);
+
+        try {
+            UserDTO user = userClient.getUserById(userId);
+            taskRepository.nullifyAssignedTasksByEmail(user.getEmail());
+            System.out.println("Tasks nullified for email: " + user.getEmail());
+        } catch (Exception e) {
+            System.out.println("Could not nullify tasks: User not found or service down");
+        }
+    }
+}
