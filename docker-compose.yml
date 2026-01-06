@@ -2,6 +2,7 @@ version: '3.8'
 
 services:
   postgres-tasks:
+    build: ./backend/task-service
     container_name: postgres-tasks
     image: postgres:15
     environment:
@@ -16,6 +17,7 @@ services:
       - task-network
 
   postgres-users:
+    build: ./backend/user-service
     image: postgres:15
     container_name: postgres-users
     environment:
@@ -30,6 +32,7 @@ services:
       - task-network
   
   postgres-notifications:
+    build: ./backend/notification-service
     container_name: postgres-notifications
     image: postgres:15
     environment:
