@@ -54,4 +54,9 @@ public class UserRestController {
     public ResponseEntity<Boolean> existsById(@PathVariable Long id) {
         return ResponseEntity.ok(userService.existsById(id));
     }
+
+    @GetMapping("/no-team")
+    public ResponseEntity<List<UserResponseDTO>> getUsersWithoutTeam() {
+        return ResponseEntity.ok(userService.getUsersWithoutTeam());
+    }
 }
