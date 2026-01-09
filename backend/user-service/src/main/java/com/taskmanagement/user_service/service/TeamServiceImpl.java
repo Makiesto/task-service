@@ -9,9 +9,10 @@ import com.taskmanagement.user_service.mapper.UserMapper;
 import com.taskmanagement.user_service.repository.TeamRepository;
 import com.taskmanagement.user_service.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.jspecify.annotations.Nullable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -124,9 +125,8 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     @Transactional
-    public UserResponseDTO addUserToTeam(String name, Long userId) {
-
-        Team team = teamRepository.findByName(name)
+    public UserResponseDTO addUserToTeam(Long teamId, Long userId) {
+        Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new RuntimeException("Team not found"));
 
         User user = userRepository.findById(userId)
@@ -144,16 +144,20 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     @Transactional
-    public void removeUserFromTeam(String name, Long userId) {
-
-        Team team = teamRepository.findByName(name)
-                .orElseThrow(() -> new RuntimeException("Team not found"));
+    public void removeUserFromTeam(Long teamId, Long userId) {
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Team not found"));
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("Team not found"));
 
-        team.getMembers().remove(user);
+        user.setTeam(null);
 
-        teamRepository.save(team);
+        if (team.getMembers() != null) {
+            team.getMembers().remove(user);
+        }
+
+        userRepository.save(user);
+
     }
 }
