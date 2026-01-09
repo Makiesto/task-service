@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -165,5 +166,11 @@ public class UserServiceImpl implements UserService {
     public boolean existsById(Long id) {
         System.out.println("Checking existence of user with id: " + id);
         return userRepository.existsById(id);
+    }
+
+    @Override
+    public List<UserResponseDTO> getUsersWithoutTeam() {
+        List<User> users = userRepository.findAllByTeamIsNull();
+        return userMapper.toResponseDTOList(users);
     }
 }

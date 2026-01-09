@@ -20,4 +20,6 @@ public interface UserService {
     boolean existsById(Long id);
 
     List<UserResponseDTO> findUsersByTeamName(String teamName);
+
+    List<UserResponseDTO> getUsersWithoutTeam();
 }
