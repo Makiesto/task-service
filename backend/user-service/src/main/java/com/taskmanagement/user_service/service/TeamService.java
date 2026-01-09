@@ -16,6 +16,6 @@ public interface TeamService {
     void deleteTeam(Long teamId);
 
     List<UserResponseDTO> getTeamMembers(String name);
-    UserResponseDTO addUserToTeam(String name, Long userId);
-    void removeUserFromTeam(String name, Long userId);
+    UserResponseDTO addUserToTeam(Long teamId, Long userId);
+    void removeUserFromTeam(Long teamId, Long userId);
 }
