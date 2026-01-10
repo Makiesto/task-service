@@ -4,6 +4,8 @@ import com.taskmanagement.task_service.client.UserClient;
 import com.taskmanagement.task_service.dto.TaskDTO;
 import com.taskmanagement.task_service.dto.TaskEventDTO;
 import com.taskmanagement.task_service.dto.UserDTO;
+import com.taskmanagement.task_service.dto.UserTaskStatsDTO;
+import com.taskmanagement.task_service.entity.Priority;
 import com.taskmanagement.task_service.entity.Project;
 import com.taskmanagement.task_service.entity.Task;
 import com.taskmanagement.task_service.entity.TaskStatus;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -228,4 +231,26 @@ public class TaskServiceImpl implements TaskService {
             System.out.println("No user assigned, skipping validation");
         }
     }
+
+    @Override
+    public UserTaskStatsDTO getUserTaskStats(String email) {
+        Long total = taskRepository.countByAssignedToEmail(email);
+        Long completed = taskRepository.countByAssignedToEmailAndStatus(email, TaskStatus.DONE);
+        Long inProgress = taskRepository.countByAssignedToEmailAndStatus(email, TaskStatus.IN_PROGRESS);
+        Long todo = taskRepository.countByAssignedToEmailAndStatus(email, TaskStatus.TODO);
+        Long highPriority = taskRepository.countByAssignedToEmailAndPriority(email, Priority.HIGH);
+        Long critical = taskRepository.countByAssignedToEmailAndPriority(email, Priority.CRITICAL);
+
+        return UserTaskStatsDTO.builder()
+                .userEmail(email)
+                .totalTasks(total)
+                .completedTasks(completed)
+                .inProgressTasks(inProgress)
+                .todoTasks(todo)
+                .highPriorityTasks(highPriority)
+                .criticalPriorityTasks(critical)
+                .build();
+    }
+
+
 }

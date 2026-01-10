@@ -1,16 +1,12 @@
 package com.taskmanagement.user_service.controller;
 
-import com.taskmanagement.user_service.dto.UserRequestDTO;
-import com.taskmanagement.user_service.dto.UserResponseDTO;
+import com.taskmanagement.user_service.dto.*;
 import com.taskmanagement.user_service.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -26,8 +22,21 @@ public class LoginRestController {
         return ResponseEntity.status(HttpStatus.CREATED).body(userResponseDTO);
     }
 
-//    @PostMapping("/login")
-//    public ResponseEntity<UserResponseDTO> login(@Valid @RequestBody UserRequestDTO userRequestDTO) {
-//
-//    }
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO loginRequestDTO) {
+        try {
+            LoginResponseDTO response = userService.login(loginRequestDTO);
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(LoginResponseDTO.builder()
+                            .message(e.getMessage())
+                            .build());
+        }
+    }
+
+    @GetMapping("/validate")
+    public ResponseEntity<String> validateToken(@RequestHeader("Authorization") String token) {
+        return ResponseEntity.ok("Token is valid");
+    }
 }

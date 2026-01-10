@@ -1,6 +1,7 @@
 package com.taskmanagement.task_service.controller;
 
 import com.taskmanagement.task_service.dto.TaskDTO;
+import com.taskmanagement.task_service.dto.UserTaskStatsDTO;
 import com.taskmanagement.task_service.service.TaskService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +37,7 @@ public class TaskRestController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<TaskDTO> updateTask(@Valid @RequestBody TaskDTO taskDTO,  @PathVariable Long id) {
+    public ResponseEntity<TaskDTO> updateTask(@Valid @RequestBody TaskDTO taskDTO, @PathVariable Long id) {
         return ResponseEntity.ok(taskService.updateTask(id, taskDTO));
     }
 
@@ -48,7 +49,7 @@ public class TaskRestController {
     }
 
     @PostMapping("/{id}/assign")
-    public ResponseEntity<TaskDTO>  assignTaskToUser(@PathVariable Long id, @RequestBody AssignRequest request) {
+    public ResponseEntity<TaskDTO> assignTaskToUser(@PathVariable Long id, @RequestBody AssignRequest request) {
 
         TaskDTO taskUpdated = taskService.assignTaskToUser(id, request.assignedToEmail());
         return ResponseEntity.ok(taskUpdated);
@@ -62,6 +63,16 @@ public class TaskRestController {
         return ResponseEntity.ok(taskUpdated);
     }
 
-    record StatusUpdateRequest(String status) {}
-    record AssignRequest(String assignedToEmail) {}
+    @GetMapping("/stats/user/{email}")
+    public ResponseEntity<UserTaskStatsDTO> getUserStats(@PathVariable String email) {
+        UserTaskStatsDTO stats = taskService.getUserTaskStats(email);
+        return ResponseEntity.ok(stats);
+    }
+
+
+    record StatusUpdateRequest(String status) {
+    }
+
+    record AssignRequest(String assignedToEmail) {
+    }
 }

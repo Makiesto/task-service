@@ -1,21 +1,21 @@
 package com.taskmanagement.user_service.service;
 
-import com.taskmanagement.user_service.dto.UserRequestDTO;
-import com.taskmanagement.user_service.dto.UserResponseDTO;
-import com.taskmanagement.user_service.dto.UserUpdateEventDTO;
+import com.taskmanagement.user_service.dto.*;
 import com.taskmanagement.user_service.entity.Team;
 import com.taskmanagement.user_service.entity.User;
 import com.taskmanagement.user_service.entity.UserRole;
 import com.taskmanagement.user_service.mapper.UserMapper;
 import com.taskmanagement.user_service.repository.TeamRepository;
 import com.taskmanagement.user_service.repository.UserRepository;
+import com.taskmanagement.user_service.security.JwtUtil;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -24,7 +24,6 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-
     private final TeamRepository teamRepository;
 
     private final UserMapper userMapper;
@@ -34,6 +33,7 @@ public class UserServiceImpl implements UserService {
     @Value("${spring.rabbitmq.exchange.user}")
     private String userExchange;
 
+    private final JwtUtil jwtUtil;
 
     @Override
     @Transactional
@@ -172,5 +172,66 @@ public class UserServiceImpl implements UserService {
     public List<UserResponseDTO> getUsersWithoutTeam() {
         List<User> users = userRepository.findAllByTeamIsNull();
         return userMapper.toResponseDTOList(users);
+    }
+
+    @Override
+    public LoginResponseDTO login(LoginRequestDTO loginRequestDTO) {
+        User user = userRepository.findByEmail(loginRequestDTO.getEmail())
+                .orElseThrow(() -> new RuntimeException("Invalid email or password"));
+
+        // (TODO: w przyszłości użyj BCrypt)
+        if (!user.getPassword().equals(loginRequestDTO.getPassword())) {
+            throw new RuntimeException("Invalid email or password");
+        }
+
+        String token = jwtUtil.generateToken(
+                user.getEmail(),
+                user.getId(),
+                user.getRole().toString()
+        );
+
+        return LoginResponseDTO.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .role(user.getRole())
+                .token(token)
+                .message("Login successful")
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public UserResponseDTO updateProfile(Long id, UserRequestDTO userRequestDTO) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+
+        user.setFirstName(userRequestDTO.getFirstName());
+        user.setLastName(userRequestDTO.getLastName());
+        user.setEmail(userRequestDTO.getEmail());
+
+        User saved = userRepository.save(user);
+        System.out.println("Profile updated for user: " + user.getEmail());
+
+        return userMapper.toResponseDTO(saved);
+    }
+
+    @Override
+    @Transactional
+    public void changePassword(Long id, ChangePasswordDTO changePasswordDTO) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+
+        // (TODO: BCrypt)
+        if (!user.getPassword().equals(changePasswordDTO.getOldPassword())) {
+            throw new RuntimeException("Old password is incorrect");
+        }
+
+        // (TODO:BCrypt)
+        user.setPassword(changePasswordDTO.getNewPassword());
+        userRepository.save(user);
+
+        System.out.println("Password changed for user: " + user.getEmail());
     }
 }

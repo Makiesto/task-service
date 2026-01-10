@@ -1,5 +1,6 @@
 package com.taskmanagement.user_service.controller;
 
+import com.taskmanagement.user_service.dto.ChangePasswordDTO;
 import com.taskmanagement.user_service.dto.UserRequestDTO;
 import com.taskmanagement.user_service.dto.UserResponseDTO;
 import com.taskmanagement.user_service.entity.UserRole;
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
@@ -59,4 +61,21 @@ public class UserRestController {
     public ResponseEntity<List<UserResponseDTO>> getUsersWithoutTeam() {
         return ResponseEntity.ok(userService.getUsersWithoutTeam());
     }
+
+    @PutMapping("/{id}/profile")
+    public ResponseEntity<UserResponseDTO> updateProfile(@PathVariable Long id, @Valid @RequestBody UserRequestDTO userRequestDTO) {
+        try {
+            UserResponseDTO updated = userService.updateProfile(id, userRequestDTO);
+            return ResponseEntity.ok(updated);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PutMapping("/{id}/change-password")
+    public ResponseEntity<?> changePassword(@PathVariable Long id, @RequestBody ChangePasswordDTO dto) {
+        userService.changePassword(id, dto);
+        return ResponseEntity.ok().body(Map.of("message", "Password updated successfully"));
+    }
+
 }
