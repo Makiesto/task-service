@@ -56,4 +56,15 @@ public class TeamRestContoller {
         List<UserResponseDTO> users = userService.findUsersByTeamName(name);
         return ResponseEntity.ok(users);
     }
+
+    @PostMapping("/{teamId}/users/{userId}")
+    public ResponseEntity<UserResponseDTO> addUserToTeam(@PathVariable Long teamId, @PathVariable Long userId) {
+        return ResponseEntity.ok(teamService.addUserToTeam(teamId, userId));
+    }
+
+    @DeleteMapping("/{teamId}/users/{userId}")
+    public ResponseEntity<Void> removeUserFromTeam(@PathVariable Long teamId, @PathVariable Long userId) {
+        teamService.removeUserFromTeam(teamId, userId);
+        return ResponseEntity.noContent().build();
+    }
 }

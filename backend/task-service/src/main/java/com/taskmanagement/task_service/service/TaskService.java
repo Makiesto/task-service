@@ -1,6 +1,7 @@
 package com.taskmanagement.task_service.service;
 
 import com.taskmanagement.task_service.dto.TaskDTO;
+import com.taskmanagement.task_service.dto.UserTaskStatsDTO;
 
 import java.util.List;
 
@@ -18,4 +19,7 @@ public interface TaskService {
     TaskDTO assignTaskToUser(Long id, String assignedToEmail);
 
     TaskDTO updateTaskStatus(Long id, String newStatus);
+
+    UserTaskStatsDTO getUserTaskStats(String email);
+
 }
