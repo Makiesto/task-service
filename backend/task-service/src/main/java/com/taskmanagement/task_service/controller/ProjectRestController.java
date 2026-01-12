@@ -1,6 +1,7 @@
 package com.taskmanagement.task_service.controller;
 
 import com.taskmanagement.task_service.dto.ProjectDTO;
+import com.taskmanagement.task_service.dto.ProjectDetailsDTO;
 import com.taskmanagement.task_service.service.ProjectService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,11 @@ public class ProjectRestController {
     @GetMapping("/{id}")
     public ResponseEntity<ProjectDTO> getProjectById(@PathVariable Long id) {
         return ResponseEntity.ok(projectService.findProjectById(id));
+    }
+
+    @GetMapping("/{id}/details")
+    public ResponseEntity<ProjectDetailsDTO> getProjectDetails(@PathVariable Long id) {
+        return ResponseEntity.ok(projectService.getProjectDetails(id));
     }
 
     @PostMapping

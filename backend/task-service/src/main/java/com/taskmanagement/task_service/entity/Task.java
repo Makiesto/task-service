@@ -47,6 +47,8 @@ public class Task {
     @Enumerated(EnumType.STRING)
     private Priority priority;
 
+    private Long teamId;
+
     @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments;
 

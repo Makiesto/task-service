@@ -105,6 +105,14 @@ export const api = {
     getProjects: () => fetch(`${API_BASE.tasks}/projects`, {
         headers: getAuthHeaders()
     }).then(r => r.json()),
+    getProjectDetails: (id) => {
+        return fetch(`${API_BASE.tasks}/projects/${id}/details`, {
+            headers: getAuthHeaders()
+        }).then(r => {
+            if (!r.ok) throw new Error(`HTTP ${r.status}`);
+            return r.json();
+        });
+    },
     createProject: (data) => fetch(`${API_BASE.tasks}/projects`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
@@ -124,4 +132,41 @@ export const api = {
     deleteComment: (id) =>
         fetch(`${API_BASE.tasks}/comments/${id}`, {method: 'DELETE'}),
 
+    uploadFileToTask: (taskId, file, uploadedBy = 'System') => {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('uploadedBy', uploadedBy);
+
+        return fetch(`${API_BASE.tasks}/attachments/tasks/${taskId}`, {
+            method: 'POST',
+            headers: {
+                // Nie dodajemy Content-Type, FormData ustawia go sam
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            body: formData,
+        }).then(r => {
+            if (!r.ok) throw new Error('Upload failed');
+            return r.json();
+        });
+    },
+
+    getTaskAttachments: (taskId) =>
+        fetch(`${API_BASE.tasks}/attachments/tasks/${taskId}`, {
+            headers: getAuthHeaders()
+        }).then(r => r.json()),
+
+    deleteAttachment: (attachmentId) =>
+        fetch(`${API_BASE.tasks}/attachments/${attachmentId}`, {
+            method: 'DELETE',
+            headers: getAuthHeaders()
+        }).then(r => {
+            if (!r.ok) throw new Error('Delete failed');
+            return true;
+        }),
+
+    previewAttachment: (id) => `${API_BASE.tasks}/attachments/${id}/preview`,
+    downloadAttachment: (id) => `${API_BASE.tasks}/attachments/${id}/download`,
+
+    getDownloadUrl: (attachmentId) => `${API_BASE.tasks}/attachments/${attachmentId}/download`,
+    getPreviewUrl: (attachmentId) => `${API_BASE.tasks}/attachments/${attachmentId}/preview`,
 };

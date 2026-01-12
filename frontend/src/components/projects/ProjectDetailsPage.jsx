@@ -1,121 +1,28 @@
-import React, { useState } from 'react';
-import { Plus, Trash2, Eye, ArrowLeft } from 'lucide-react';
-import { useApp } from '../../context/AppContext';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { ArrowLeft, Calendar, CheckCircle, Clock, AlertCircle, TrendingUp } from 'lucide-react';
 import { api } from '../../api/api';
-import ProjectForm from './ProjectForm';
 
-export default function ProjectsPage() {
-  const { projects, fetchProjects } = useApp();
-  const [showForm, setShowForm] = useState(false);
-  const [selectedProject, setSelectedProject] = useState(null);
+export default function ProjectDetailsPage() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [project, setProject] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const handleDelete = async (id) => {
-    if (!confirm('Delete this project?')) return;
+  useEffect(() => {
+    fetchProjectDetails();
+  }, [id]);
+
+  const fetchProjectDetails = async () => {
     try {
-      await api.deleteProject(id);
-      fetchProjects();
+      const data = await api.getProjectDetails(id);
+      setProject(data);
     } catch (err) {
-      alert('Error deleting project');
+      console.error('Error fetching project details:', err);
+    } finally {
+      setLoading(false);
     }
   };
-
-  const handleViewDetails = async (projectId) => {
-    console.log('Fetching details for project ID:', projectId);
-    if (!projectId) {
-      alert('Project ID is missing!');
-      return;
-    }
-    try {
-      const details = await api.getProjectDetails(projectId);
-      console.log('Project details:', details);
-      setSelectedProject(details);
-    } catch (err) {
-      console.error('Error loading project details:', err);
-      alert('Error loading project details. Make sure the backend is running and the endpoint exists.');
-    }
-  };
-
-  if (selectedProject) {
-    return <ProjectDetailsView project={selectedProject} onBack={() => setSelectedProject(null)} />;
-  }
-
-  return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h3 className="text-xl font-semibold">All Projects ({projects.length})</h3>
-        <button
-          onClick={() => setShowForm(true)}
-          className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-        >
-          <Plus size={20} />
-          Add Project
-        </button>
-      </div>
-
-      {showForm && (
-        <ProjectForm
-          onClose={() => setShowForm(false)}
-          onSuccess={() => { setShowForm(false); fetchProjects(); }}
-        />
-      )}
-
-      <div className="grid grid-cols-3 gap-6">
-        {projects.map(project => (
-          <div key={project.id} className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
-            <div className="flex justify-between items-start mb-4">
-              <h4 className="text-xl font-bold">{project.name}</h4>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => handleViewDetails(project.id)}
-                  className="text-blue-600 hover:text-blue-800"
-                  title="View Details"
-                >
-                  <Eye size={18} />
-                </button>
-                <button
-                  onClick={() => handleDelete(project.id)}
-                  className="text-red-600 hover:text-red-800"
-                  title="Delete Project"
-                >
-                  <Trash2 size={18} />
-                </button>
-              </div>
-            </div>
-            <p className="text-gray-600 mb-4">{project.description}</p>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-500">
-                Tasks: {project.numberOfTasks || 0}
-              </span>
-              <button
-                onClick={() => handleViewDetails(project.id)}
-                className="text-blue-600 hover:underline"
-              >
-                View Details →
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function ProjectDetailsView({ project, onBack }) {
-  if (!project || !project.stats) {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center gap-4">
-          <button onClick={onBack} className="p-2 hover:bg-gray-100 rounded-lg">
-            <ArrowLeft size={24} />
-          </button>
-          <div>
-            <h1 className="text-3xl font-bold">Project Details</h1>
-            <p className="text-red-600">Error: Project data not loaded correctly</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -145,14 +52,30 @@ function ProjectDetailsView({ project, onBack }) {
     });
   };
 
-  const { stats, tasks = [] } = project;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-gray-500">Loading project details...</div>
+      </div>
+    );
+  }
+
+  if (!project) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-red-500">Project not found</div>
+      </div>
+    );
+  }
+
+  const { stats, tasks } = project;
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
         <button
-          onClick={onBack}
+          onClick={() => navigate('/projects')}
           className="p-2 hover:bg-gray-100 rounded-lg"
         >
           <ArrowLeft size={24} />
@@ -174,7 +97,7 @@ function ProjectDetailsView({ project, onBack }) {
               <p className="text-gray-600 text-sm">Total Tasks</p>
               <p className="text-3xl font-bold">{stats.totalTasks}</p>
             </div>
-            <div className="text-blue-600 text-2xl">📊</div>
+            <TrendingUp className="text-blue-600" size={32} />
           </div>
         </div>
 
@@ -185,7 +108,7 @@ function ProjectDetailsView({ project, onBack }) {
               <p className="text-3xl font-bold text-green-600">{stats.doneTasks}</p>
               <p className="text-xs text-gray-500">{stats.completionRate}%</p>
             </div>
-            <div className="text-green-600 text-2xl">✓</div>
+            <CheckCircle className="text-green-600" size={32} />
           </div>
         </div>
 
@@ -195,7 +118,7 @@ function ProjectDetailsView({ project, onBack }) {
               <p className="text-gray-600 text-sm">In Progress</p>
               <p className="text-3xl font-bold text-blue-600">{stats.inProgressTasks}</p>
             </div>
-            <div className="text-blue-600 text-2xl">⏱</div>
+            <Clock className="text-blue-600" size={32} />
           </div>
         </div>
 
@@ -207,7 +130,7 @@ function ProjectDetailsView({ project, onBack }) {
                 {stats.criticalPriorityTasks + stats.highPriorityTasks}
               </p>
             </div>
-            <div className="text-red-600 text-2xl">⚠</div>
+            <AlertCircle className="text-red-600" size={32} />
           </div>
         </div>
       </div>
@@ -264,8 +187,14 @@ function ProjectDetailsView({ project, onBack }) {
                   </div>
                   <p className="text-sm text-gray-600 mt-1">{task.description}</p>
                   <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
-                    <span>Created: {formatDate(task.createdAt)}</span>
-                    <span>Deadline: {formatDate(task.deadline)}</span>
+                    <span className="flex items-center gap-1">
+                      <Calendar size={14} />
+                      Created: {formatDate(task.createdAt)}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Calendar size={14} />
+                      Deadline: {formatDate(task.deadline)}
+                    </span>
                     {task.assignedToEmail && (
                       <span>Assigned to: {task.assignedToEmail}</span>
                     )}

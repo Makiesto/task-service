@@ -1,3 +1,9 @@
+node_modules/
+**/node_modules/
+target/
+**/target/
+uploads/
+.idea/
+.vscode/
 .env
-**/.env
-
+.DS_Store
