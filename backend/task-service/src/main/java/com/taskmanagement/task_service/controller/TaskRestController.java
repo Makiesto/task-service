@@ -2,7 +2,9 @@ package com.taskmanagement.task_service.controller;
 
 import com.taskmanagement.task_service.dto.TaskDTO;
 import com.taskmanagement.task_service.dto.UserTaskStatsDTO;
+import com.taskmanagement.task_service.security.RequireRole;
 import com.taskmanagement.task_service.service.TaskService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -30,18 +32,33 @@ public class TaskRestController {
     }
 
     @PostMapping
+    @RequireRole({"ADMIN", "MANAGER"})
     public ResponseEntity<TaskDTO> createTask(@Valid @RequestBody TaskDTO taskDTO) {
+
         TaskDTO created = taskService.createTask(taskDTO);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<TaskDTO> updateTask(@Valid @RequestBody TaskDTO taskDTO, @PathVariable Long id) {
+    public ResponseEntity<TaskDTO> updateTask(@Valid @RequestBody TaskDTO taskDTO, @PathVariable Long id,
+                                              HttpServletRequest request) {
+
+        String userRole = request.getHeader("X-User-Role");
+        String userEmail = request.getHeader("X-User-Email");
+
+        if ("DEVELOPER".equals(userRole)) {
+            TaskDTO existingTask = taskService.findTaskById(id);
+            if (!userEmail.equals(existingTask.getAssignedToEmail())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+        }
+
         return ResponseEntity.ok(taskService.updateTask(id, taskDTO));
     }
 
     @DeleteMapping("/{id}")
+    @RequireRole({"ADMIN", "MANAGER"})
     public ResponseEntity<Void> deleteTaskById(@PathVariable Long id) {
         taskService.deleteTask(id);
 
@@ -49,6 +66,7 @@ public class TaskRestController {
     }
 
     @PostMapping("/{id}/assign")
+    @RequireRole({"ADMIN", "MANAGER"})
     public ResponseEntity<TaskDTO> assignTaskToUser(@PathVariable Long id, @RequestBody AssignRequest request) {
 
         TaskDTO taskUpdated = taskService.assignTaskToUser(id, request.assignedToEmail());
@@ -56,7 +74,19 @@ public class TaskRestController {
     }
 
     @PatchMapping("{id}/status")
-    public ResponseEntity<TaskDTO> updateTaskStatus(@PathVariable Long id, @RequestBody StatusUpdateRequest request) {
+    public ResponseEntity<TaskDTO> updateTaskStatus(@PathVariable Long id,
+                                                    @RequestBody StatusUpdateRequest request,
+                                                    HttpServletRequest httpRequest) {
+
+        String userRole = httpRequest.getHeader("X-User-Role");
+        String userEmail = httpRequest.getHeader("X-User-Email");
+
+        if ("DEVELOPER".equals(userRole)) {
+            TaskDTO existingTask = taskService.findTaskById(id);
+            if (!userEmail.equals(existingTask.getAssignedToEmail())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+        }
 
         TaskDTO taskUpdated = taskService.updateTaskStatus(id, request.status());
 

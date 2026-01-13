@@ -2,6 +2,7 @@ package com.taskmanagement.task_service.controller;
 
 import com.taskmanagement.task_service.dto.FileAttachmentDTO;
 import com.taskmanagement.task_service.entity.FileAttachment;
+import com.taskmanagement.task_service.security.RequireRole;
 import com.taskmanagement.task_service.service.FileAttachmentService;
 import com.taskmanagement.task_service.service.FileStorageService;
 import lombok.RequiredArgsConstructor;
@@ -72,6 +73,7 @@ public class FileAttachmentController {
     }
 
     @DeleteMapping("/{id}")
+    @RequireRole({"ADMIN", "MANAGER"})
     public ResponseEntity<Void> deleteAttachment(@PathVariable Long id) {
         attachmentService.deleteAttachment(id);
         return ResponseEntity.noContent().build();

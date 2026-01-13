@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Upload, Download, Trash2, File, Image as ImageIcon, Eye } from 'lucide-react';
-import { api } from '../../api/api.js';
+import { api } from '../../api/api';
+import { useRole } from '../../hooks/useRole';
 
 export default function FileAttachmentsModal({ task, onClose }) {
   const [attachments, setAttachments] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const fileInputRef = useRef(null);
+  const { canDeleteAttachment } = useRole();
 
   useEffect(() => {
     fetchAttachments();
@@ -189,12 +191,14 @@ export default function FileAttachmentsModal({ task, onClose }) {
                       <Download size={16} />
                       Download
                     </a>
-                    <button
-                      onClick={() => handleDelete(attachment.id, attachment.fileName)}
-                      className="flex items-center justify-center gap-1 px-3 py-2 text-sm bg-red-50 text-red-600 rounded hover:bg-red-100"
-                    >
-                      <Trash2 size={16} />
-                    </button>
+                    {canDeleteAttachment && (
+                      <button
+                        onClick={() => handleDelete(attachment.id, attachment.fileName)}
+                        className="flex items-center justify-center gap-1 px-3 py-2 text-sm bg-red-50 text-red-600 rounded hover:bg-red-100"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}

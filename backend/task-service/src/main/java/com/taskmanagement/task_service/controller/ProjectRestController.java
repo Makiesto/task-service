@@ -2,6 +2,7 @@ package com.taskmanagement.task_service.controller;
 
 import com.taskmanagement.task_service.dto.ProjectDTO;
 import com.taskmanagement.task_service.dto.ProjectDetailsDTO;
+import com.taskmanagement.task_service.security.RequireRole;
 import com.taskmanagement.task_service.service.ProjectService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -34,17 +35,20 @@ public class ProjectRestController {
     }
 
     @PostMapping
+    @RequireRole({"ADMIN", "MANAGER"})
     public ResponseEntity<ProjectDTO> createProject(@Valid @RequestBody ProjectDTO projectDTO) {
         ProjectDTO created = projectService.createProject(projectDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @PutMapping("/{id}")
+    @RequireRole({"ADMIN", "MANAGER"})
     public ResponseEntity<ProjectDTO> updateProject(@PathVariable Long id, @Valid @RequestBody ProjectDTO projectDTO) {
         return ResponseEntity.ok(projectService.updateProject(id, projectDTO));
     }
 
     @DeleteMapping("/{id}")
+    @RequireRole({"ADMIN"})
     public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
         projectService.deleteProject(id);
         return ResponseEntity.noContent().build();

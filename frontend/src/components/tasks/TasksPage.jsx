@@ -1,16 +1,22 @@
 import React, { useState } from 'react';
-import { Trash2, Paperclip } from 'lucide-react';
+import { Plus, Trash2, Users, Paperclip } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { api } from '../../api/api';
-import FileAttachmentsModal from './FileAttachmentsModal.jsx';
+import { useRole } from '../../hooks/useRole';
+import FileAttachmentsModal from './FileAttachmentsModal';
 
 export default function TasksPage() {
   const { tasks, fetchTasks } = useApp();
   const [showAttachmentsModal, setShowAttachmentsModal] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
-
+  const [taskAssignments, setTaskAssignments] = useState({});
+  const { canDeleteTask, canAssignUsers, canUpdateTaskStatus, currentUser } = useRole();
 
   const handleDelete = async (id) => {
+    if (!canDeleteTask) {
+      alert('You do not have permission to delete tasks');
+      return;
+    }
     if (!confirm('Delete this task?')) return;
     try {
       await api.deleteTask(id);
@@ -20,12 +26,35 @@ export default function TasksPage() {
     }
   };
 
+  const handleOpenAssignModal = async (task) => {
+    if (!canAssignUsers) {
+      alert('You do not have permission to assign users');
+      return;
+    }
+    setSelectedTask(task);
+    setShowAssignModal(true);
+
+    try {
+      const assignments = await api.getTaskAssignments(task.id);
+      setTaskAssignments(prev => ({
+        ...prev,
+        [task.id]: assignments
+      }));
+    } catch (err) {
+      console.error('Error fetching assignments:', err);
+    }
+  };
+
   const handleOpenAttachmentsModal = (task) => {
     setSelectedTask(task);
     setShowAttachmentsModal(true);
   };
 
-  const handleUpdateTaskStatus = async (id, newStatus) => {
+  const handleUpdateTaskStatus = async (id, newStatus, task) => {
+    if (!canUpdateTaskStatus(task)) {
+      alert('You can only update status of your own tasks');
+      return;
+    }
     try {
       await api.updateTaskStatus(id, newStatus);
       fetchTasks();
@@ -76,58 +105,95 @@ export default function TasksPage() {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Task</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Priority</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Assigned To</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Deadline</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {tasks.map(task => (
-                <tr key={task.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4">
-                    <div>
-                      <p className="font-semibold">{task.title}</p>
-                      <p className="text-sm text-gray-600">{task.description}</p>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <select
-                      value={task.status}
-                      onChange={(e) => handleUpdateTaskStatus(task.id, e.target.value)}
-                      className={`px-3 py-1 rounded text-sm ${getStatusColor(task.status)}`}
-                    >
-                      <option value="TODO">TODO</option>
-                      <option value="IN_PROGRESS">IN PROGRESS</option>
-                      <option value="DONE">DONE</option>
-                    </select>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={`px-3 py-1 rounded text-sm ${getPriorityColor(task.priority)}`}>
-                      {task.priority}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="text-sm">{formatDate(task.deadline)}</span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => handleOpenAttachmentsModal(task)}
-                        className="p-2 text-purple-600 hover:bg-purple-50 rounded-lg"
-                        title="File Attachments"
+              {tasks.map(task => {
+                const assignments = taskAssignments[task.id] || [];
+
+                return (
+                  <tr key={task.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4">
+                      <div>
+                        <p className="font-semibold">{task.title}</p>
+                        <p className="text-sm text-gray-600">{task.description}</p>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <select
+                        value={task.status}
+                        onChange={(e) => handleUpdateTaskStatus(task.id, e.target.value, task)}
+                        disabled={!canUpdateTaskStatus(task)}
+                        className={`px-3 py-1 rounded text-sm ${getStatusColor(task.status)} ${
+                          !canUpdateTaskStatus(task) ? 'opacity-50 cursor-not-allowed' : ''
+                        }`}
                       >
-                        <Paperclip size={18} />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(task.id)}
-                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
-                        title="Delete Task"
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                        <option value="TODO">TODO</option>
+                        <option value="IN_PROGRESS">IN PROGRESS</option>
+                        <option value="DONE">DONE</option>
+                      </select>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`px-3 py-1 rounded text-sm ${getPriorityColor(task.priority)}`}>
+                        {task.priority}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      {assignments.length > 0 ? (
+                        <div className="flex flex-col gap-1">
+                          {assignments.slice(0, 2).map(a => (
+                            <span key={a.id} className="text-sm text-gray-700">
+                              {a.userName}
+                            </span>
+                          ))}
+                          {assignments.length > 2 && (
+                            <span className="text-xs text-gray-500">
+                              +{assignments.length - 2} more
+                            </span>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-sm text-gray-400">Not assigned</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="text-sm">{formatDate(task.deadline)}</span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex gap-2">
+                        {canAssignUsers && (
+                          <button
+                            onClick={() => handleOpenAssignModal(task)}
+                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
+                            title="Assign Users"
+                          >
+                            <Users size={18} />
+                          </button>
+                        )}
+                        <button
+                          onClick={() => handleOpenAttachmentsModal(task)}
+                          className="p-2 text-purple-600 hover:bg-purple-50 rounded-lg"
+                          title="File Attachments"
+                        >
+                          <Paperclip size={18} />
+                        </button>
+                        {canDeleteTask && (
+                          <button
+                            onClick={() => handleDelete(task.id)}
+                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                            title="Delete Task"
+                          >
+                            <Trash2 size={18} />
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
