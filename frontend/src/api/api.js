@@ -115,6 +115,54 @@ export const api = {
     }),
     deleteTask: (id) => fetch(`${API_BASE.tasks}/tasks/${id}`, {method: 'DELETE'}),
 
+    assignUsersToTask: (taskId, userEmails) => fetch(`${API_BASE.tasks}/projects/tasks/${taskId}/assign-users`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({userEmails}),
+    }).then(r => r.json()),
+
+    getTaskAssignments: (taskId) => fetch(`${API_BASE.tasks}/projects/tasks/${taskId}/assignments`, {
+        headers: getAuthHeaders()
+    }).then(r => r.json()),
+
+    removeUserFromTask: (taskId, userEmail) => fetch(`${API_BASE.tasks}/projects/tasks/${taskId}/assignments/${encodeURIComponent(userEmail)}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders()
+    }),
+
+    uploadFileToTask: (taskId, file, uploadedBy) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        if (uploadedBy) formData.append('uploadedBy', uploadedBy);
+
+        const token = localStorage.getItem('token');
+        const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+
+        const headers = {};
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+        if (currentUser.email) headers['X-User-Email'] = currentUser.email;
+        if (currentUser.role) headers['X-User-Role'] = currentUser.role;
+
+        return fetch(`${API_BASE.tasks}/attachments/tasks/${taskId}`, {
+            method: 'POST',
+            headers: headers,
+            body: formData,
+        }).then(r => r.json());
+    },
+
+    getTaskAttachments: (taskId) => fetch(`${API_BASE.tasks}/attachments/tasks/${taskId}`, {
+        headers: getAuthHeaders()
+    }).then(r => r.json()),
+    downloadAttachment: (attachmentId) => {
+        return `${API_BASE.tasks}/attachments/${attachmentId}/download`;
+    },
+    previewAttachment: (attachmentId) => {
+        return `${API_BASE.tasks}/attachments/${attachmentId}/preview`;
+    },
+    deleteAttachment: (attachmentId) => fetch(`${API_BASE.tasks}/attachments/${attachmentId}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders()
+    }),
     getProjects: () => fetch(`${API_BASE.tasks}/projects`, {
         headers: getAuthHeaders()
     }).then(r => r.json()),
