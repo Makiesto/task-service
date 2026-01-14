@@ -44,18 +44,27 @@ export const api = {
         }
         return r.json();
     }),
-    getUserById: (id) => fetch(`${API_BASE.users}/users/${id}`).then(r => r.json()),
+
+    getUserById: (id) => fetch(`${API_BASE.users}/users/${id}`, {
+        headers: getAuthHeaders()
+    }).then(r => r.json()),
+
     createUser: (data) => fetch(`${API_BASE.users}/auth/register`, {
         method: 'POST',
-        headers: {'Content-Type': 'application/json'},
+        headers: getAuthHeaders(),
         body: JSON.stringify(data),
     }),
+
     updateUser: (id, data) => fetch(`${API_BASE.users}/users/${id}`, {
         method: 'PUT',
-        headers: {'Content-Type': 'application/json'},
+        headers: getAuthHeaders(),
         body: JSON.stringify(data),
     }),
-    deleteUser: (id) => fetch(`${API_BASE.users}/users/${id}`, {method: 'DELETE'}),
+
+    deleteUser: (id) => fetch(`${API_BASE.users}/users/${id}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders()
+    }),
 
     getTeams: () => fetch(`${API_BASE.users}/teams`, {
         headers: getAuthHeaders()
@@ -63,17 +72,23 @@ export const api = {
 
     createTeam: (data) => fetch(`${API_BASE.users}/teams`, {
         method: 'POST',
-        headers: {'Content-Type': 'application/json'},
+        headers: getAuthHeaders(),
         body: JSON.stringify(data),
     }),
-    deleteTeam: (id) => fetch(`${API_BASE.users}/teams/${id}`, {method: 'DELETE'}),
 
-    getAvailableUsers: () =>
-        fetch(`${API_BASE.users}/users/no-team`).then(res => res.json()),
+    deleteTeam: (id) => fetch(`${API_BASE.users}/teams/${id}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders()
+    }),
+
+    getAvailableUsers: () => fetch(`${API_BASE.users}/users/no-team`, {
+        headers: getAuthHeaders()
+    }).then(res => res.json()),
 
     addUserToTeam: (teamId, userId) =>
         fetch(`${API_BASE.users}/teams/${teamId}/users/${userId}`, {
-            method: 'POST'
+            method: 'POST',
+            headers: getAuthHeaders()
         }),
 
     updateProfile: (id, data) => fetch(`${API_BASE.users}/users/${id}/profile`, {
@@ -97,39 +112,89 @@ export const api = {
 
     removeUserFromTeam: (teamId, userId) =>
         fetch(`${API_BASE.users}/teams/${teamId}/users/${userId}`, {
-            method: 'DELETE'
+            method: 'DELETE',
+            headers: getAuthHeaders()
         }),
 
     getTasks: () => fetch(`${API_BASE.tasks}/tasks`, {
         headers: getAuthHeaders()
     }).then(r => r.json()),
+
     createTask: (data) => fetch(`${API_BASE.tasks}/tasks`, {
         method: 'POST',
-        headers: {'Content-Type': 'application/json'},
+        headers: getAuthHeaders(),
         body: JSON.stringify(data),
     }),
+
     updateTaskStatus: (id, status) => fetch(`${API_BASE.tasks}/tasks/${id}/status`, {
         method: 'PATCH',
-        headers: {'Content-Type': 'application/json'},
+        headers: getAuthHeaders(),
         body: JSON.stringify({status}),
     }),
-    deleteTask: (id) => fetch(`${API_BASE.tasks}/tasks/${id}`, {method: 'DELETE'}),
 
-    assignUsersToTask: (taskId, userEmails) => fetch(`${API_BASE.tasks}/projects/tasks/${taskId}/assign-users`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({userEmails}),
-    }).then(r => r.json()),
-
-    getTaskAssignments: (taskId) => fetch(`${API_BASE.tasks}/projects/tasks/${taskId}/assignments`, {
-        headers: getAuthHeaders()
-    }).then(r => r.json()),
-
-    removeUserFromTask: (taskId, userEmail) => fetch(`${API_BASE.tasks}/projects/tasks/${taskId}/assignments/${encodeURIComponent(userEmail)}`, {
+    deleteTask: (id) => fetch(`${API_BASE.tasks}/tasks/${id}`, {
         method: 'DELETE',
         headers: getAuthHeaders()
     }),
 
+    getProjects: () => fetch(`${API_BASE.tasks}/projects`, {
+        headers: getAuthHeaders()
+    }).then(r => r.json()),
+
+    getProjectDetails: (id) => {
+        return fetch(`${API_BASE.tasks}/projects/${id}/details`, {
+            headers: getAuthHeaders()
+        }).then(r => {
+            if (!r.ok) throw new Error(`HTTP ${r.status}`);
+            return r.json();
+        });
+    },
+
+    createProject: (data) => fetch(`${API_BASE.tasks}/projects`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(data),
+    }),
+
+    deleteProject: (id) => fetch(`${API_BASE.tasks}/projects/${id}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders()
+    }),
+
+    getCommentsByTaskId: (taskId) =>
+        fetch(`${API_BASE.tasks}/comments/task/${taskId}`, {
+            headers: getAuthHeaders()
+        }).then(r => r.json()),
+
+    createComment: (data) => fetch(`${API_BASE.tasks}/comments`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(data),
+    }).then(r => r.json()),
+
+    deleteComment: (id) =>
+        fetch(`${API_BASE.tasks}/comments/${id}`, {
+            method: 'DELETE',
+            headers: getAuthHeaders()
+        }),
+
+    // Task Assignments
+    assignUsersToTask: (taskId, userEmails) => fetch(`${API_BASE.tasks}/tasks/${taskId}/assign-users`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ userEmails }),
+    }).then(r => r.json()),
+
+    getTaskAssignments: (taskId) => fetch(`${API_BASE.tasks}/tasks/${taskId}/assignments`, {
+        headers: getAuthHeaders()
+    }).then(r => r.json()),
+
+    removeUserFromTask: (taskId, userEmail) => fetch(`${API_BASE.tasks}/tasks/${taskId}/assignments/${encodeURIComponent(userEmail)}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders()
+    }),
+
+    // File Attachments
     uploadFileToTask: (taskId, file, uploadedBy) => {
         const formData = new FormData();
         formData.append('file', file);
@@ -153,43 +218,17 @@ export const api = {
     getTaskAttachments: (taskId) => fetch(`${API_BASE.tasks}/attachments/tasks/${taskId}`, {
         headers: getAuthHeaders()
     }).then(r => r.json()),
+
     downloadAttachment: (attachmentId) => {
         return `${API_BASE.tasks}/attachments/${attachmentId}/download`;
     },
+
     previewAttachment: (attachmentId) => {
         return `${API_BASE.tasks}/attachments/${attachmentId}/preview`;
     },
+
     deleteAttachment: (attachmentId) => fetch(`${API_BASE.tasks}/attachments/${attachmentId}`, {
         method: 'DELETE',
         headers: getAuthHeaders()
     }),
-    getProjects: () => fetch(`${API_BASE.tasks}/projects`, {
-        headers: getAuthHeaders()
-    }).then(r => r.json()),
-    getProjectDetails: (id) => {
-        return fetch(`${API_BASE.tasks}/projects/${id}/details`, {
-            headers: getAuthHeaders()
-        }).then(r => {
-            if (!r.ok) throw new Error(`HTTP ${r.status}`);
-            return r.json();
-        });
-    },
-    createProject: (data) => fetch(`${API_BASE.tasks}/projects`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(data),
-    }),
-    deleteProject: (id) => fetch(`${API_BASE.tasks}/projects/${id}`, {method: 'DELETE'}),
-
-    getCommentsByTaskId: (taskId) =>
-        fetch(`${API_BASE.tasks}/comments/task/${taskId}`).then(r => r.json()),
-
-    createComment: (data) => fetch(`${API_BASE.tasks}/comments`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(data),
-    }).then(r => r.json()),
-
-    deleteComment: (id) =>
-        fetch(`${API_BASE.tasks}/comments/${id}`, {method: 'DELETE'}),
 };

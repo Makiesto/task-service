@@ -13,7 +13,7 @@ export default function TasksPage() {
     const [showAttachmentsModal, setShowAttachmentsModal] = useState(false);
     const [selectedTask, setSelectedTask] = useState(null);
     const [taskAssignments, setTaskAssignments] = useState({});
-    const {canDeleteTask, canAssignUsers, canUpdateTaskStatus, currentUser} = useRole();
+    const {canDeleteTask, canAssignUsers, canUpdateTaskStatus, currentUser, isDeveloper} = useRole();
 
     const handleDelete = async (id) => {
         if (!canDeleteTask) {
@@ -104,9 +104,18 @@ export default function TasksPage() {
     };
 
     return (
-        <div className="space-y-6">
+       <div className="space-y-6">
             <div className="flex justify-between items-center">
-                <h3 className="text-xl font-semibold">All Tasks ({tasks.length})</h3>
+                <div>
+                    <h3 className="text-xl font-semibold">
+                        {isDeveloper ? 'My Tasks' : 'All Tasks'} ({tasks.length})
+                    </h3>
+                    {isDeveloper && (
+                        <p className="text-sm text-gray-500 mt-1">
+                            Showing only tasks assigned to you
+                        </p>
+                    )}
+                </div>
             </div>
 
             <div className="bg-white rounded-lg shadow">
@@ -117,9 +126,9 @@ export default function TasksPage() {
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Task</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Priority</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Assigned
-                                To
-                            </th>
+                            {!isDeveloper && (
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Assigned To</th>
+                            )}
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Deadline</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                         </tr>
@@ -151,28 +160,30 @@ export default function TasksPage() {
                                         </select>
                                     </td>
                                     <td className="px-6 py-4">
-                      <span className={`px-3 py-1 rounded text-sm ${getPriorityColor(task.priority)}`}>
-                        {task.priority}
-                      </span>
+                                        <span className={`px-3 py-1 rounded text-sm ${getPriorityColor(task.priority)}`}>
+                                            {task.priority}
+                                        </span>
                                     </td>
-                                    <td className="px-6 py-4">
-                                        {assignments.length > 0 ? (
-                                            <div className="flex flex-col gap-1">
-                                                {assignments.slice(0, 2).map(a => (
-                                                    <span key={a.id} className="text-sm text-gray-700">
-                              {a.userName}
-                            </span>
-                                                ))}
-                                                {assignments.length > 2 && (
-                                                    <span className="text-xs text-gray-500">
-                              +{assignments.length - 2} more
-                            </span>
-                                                )}
-                                            </div>
-                                        ) : (
-                                            <span className="text-sm text-gray-400">Not assigned</span>
-                                        )}
-                                    </td>
+                                    {!isDeveloper && (
+                                        <td className="px-6 py-4">
+                                            {assignments.length > 0 ? (
+                                                <div className="flex flex-col gap-1">
+                                                    {assignments.slice(0, 2).map(a => (
+                                                        <span key={a.id} className="text-sm text-gray-700">
+                                                            {a.userName}
+                                                        </span>
+                                                    ))}
+                                                    {assignments.length > 2 && (
+                                                        <span className="text-xs text-gray-500">
+                                                            +{assignments.length - 2} more
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            ) : (
+                                                <span className="text-sm text-gray-400">Not assigned</span>
+                                            )}
+                                        </td>
+                                    )}
                                     <td className="px-6 py-4">
                                         <span className="text-sm">{formatDate(task.deadline)}</span>
                                     </td>

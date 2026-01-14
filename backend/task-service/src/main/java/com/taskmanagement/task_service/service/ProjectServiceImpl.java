@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -37,9 +38,18 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     @Transactional
-    public List<ProjectDTO> findAllProjects() {
-        System.out.println("Finding all projects");
+    public List<ProjectDTO> findAllProjects(String userRole, String userEmail) {
+        System.out.println("Finding all projects for role: " + userRole);
         List<Project> projects = projectRepository.findAll();
+
+        if ("DEVELOPER".equals(userRole) && userEmail != null) {
+            projects = projects.stream()
+                    .filter(project -> project.getTasks() != null &&
+                            project.getTasks().stream()
+                                    .anyMatch(task -> userEmail.equals(task.getAssignedToEmail())))
+                    .collect(Collectors.toList());
+        }
+
         return projectMapper.toDTOList(projects);
     }
 

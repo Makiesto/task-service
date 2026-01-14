@@ -3,13 +3,23 @@ import {Plus, Edit2, Trash2} from 'lucide-react';
 import {useApp} from '../../context/AppContext';
 import {api} from '../../api/api';
 import UserForm from '../users/UsersForm.jsx';
+import {useRole} from '../../hooks/useRole';
 
 export default function UsersPage() {
     const {users, fetchUsers} = useApp();
     const [showForm, setShowForm] = useState(false);
     const [editingUser, setEditingUser] = useState(null);
 
+    const {isAdmin, isManager} = useRole();
+    const canEditUsers = isAdmin || isManager;
+    const canDeleteUsers = isAdmin;
+    const canCreateUsers = isAdmin;
+
     const handleDelete = async (id) => {
+        if (!canDeleteUsers) {
+            alert('You do not have permission to delete users');
+            return;
+        }
         if (!confirm('Delete this user?')) return;
         try {
             await api.deleteUser(id);
@@ -19,20 +29,31 @@ export default function UsersPage() {
         }
     };
 
+    const handleEdit = (user) => {
+        if (!canEditUsers) {
+            alert('You do not have permission to edit users');
+            return;
+        }
+        setEditingUser(user);
+        setShowForm(true);
+    };
+
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <h3 className="text-xl font-semibold">All Users ({users.length})</h3>
-                <button
-                    onClick={() => {
-                        setShowForm(true);
-                        setEditingUser(null);
-                    }}
-                    className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-                >
-                    <Plus size={20}/>
-                    Add User
-                </button>
+                {canCreateUsers && (
+                    <button
+                        onClick={() => {
+                            setShowForm(true);
+                            setEditingUser(null);
+                        }}
+                        className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                    >
+                        <Plus size={20}/>
+                        Add User
+                    </button>
+                )}
             </div>
 
             {showForm && (
@@ -73,21 +94,27 @@ export default function UsersPage() {
                             </td>
                             <td className="px-6 py-4">
                                 <div className="flex gap-2">
-                                    <button
-                                        onClick={() => {
-                                            setEditingUser(user);
-                                            setShowForm(true);
-                                        }}
-                                        className="text-blue-600 hover:text-blue-800"
-                                    >
-                                        <Edit2 size={18}/>
-                                    </button>
-                                    <button
-                                        onClick={() => handleDelete(user.id)}
-                                        className="text-red-600 hover:text-red-800"
-                                    >
-                                        <Trash2 size={18}/>
-                                    </button>
+                                    {canEditUsers && (
+                                        <button
+                                            onClick={() => handleEdit(user)}
+                                            className="text-blue-600 hover:text-blue-800"
+                                            title="Edit User"
+                                        >
+                                            <Edit2 size={18}/>
+                                        </button>
+                                    )}
+                                    {canDeleteUsers && (
+                                        <button
+                                            onClick={() => handleDelete(user.id)}
+                                            className="text-red-600 hover:text-red-800"
+                                            title="Delete User"
+                                        >
+                                            <Trash2 size={18}/>
+                                        </button>
+                                    )}
+                                    {!canEditUsers && !canDeleteUsers && (
+                                        <span className="text-sm text-gray-400">View only</span>
+                                    )}
                                 </div>
                             </td>
                         </tr>
