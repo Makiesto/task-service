@@ -12,24 +12,36 @@ const TeamMembers = ({ teamId }) => {
     }, [teamId]);
 
     const loadData = async () => {
-        const [membersData, usersData] = await Promise.all([
-            api.getTeamMembers(teamId),
-            api.getUsers()
-        ]);
-        setMembers(membersData);
-        setAllUsers(usersData);
+        try {
+            const membersData = await api.getTeamMembers(teamId);
+            const usersData = await api.getUsers();
+
+            setMembers(membersData);
+            setAllUsers(usersData);
+        } catch (error) {
+            console.error('Error loading team members:', error);
+        }
     };
 
     const handleAdd = async () => {
         if (!selectedUserId) return;
-        await api.addUserToTeam(teamId, selectedUserId);
-        loadData();
+        try {
+            await api.addUserToTeam(teamId, selectedUserId);
+            loadData();
+            setSelectedUserId('');
+        } catch (error) {
+            console.error('Error adding user:', error);
+        }
     };
 
     const handleRemove = async (userId) => {
         if (confirm("Remove user from team?")) {
-            await api.removeUserFromTeam(teamId, userId);
-            loadData();
+            try {
+                await api.removeUserFromTeam(teamId, userId);
+                loadData();
+            } catch (error) {
+                console.error('Error removing user:', error);
+            }
         }
     };
 
@@ -40,7 +52,6 @@ const TeamMembers = ({ teamId }) => {
                 <h3 className="font-bold text-lg">Team Members</h3>
             </div>
 
-
             <div className="flex gap-2 mb-6">
                 <select
                     className="flex-1 border rounded-lg px-3 py-2 outline-none"
@@ -49,7 +60,9 @@ const TeamMembers = ({ teamId }) => {
                 >
                     <option value="">Select user to add...</option>
                     {allUsers.filter(u => !members.find(m => m.id === u.id)).map(user => (
-                        <option key={user.id} value={user.id}>{user.email}</option>
+                        <option key={user.id} value={user.id}>
+                            {user.firstName} {user.lastName}
+                        </option>
                     ))}
                 </select>
                 <button
@@ -64,7 +77,7 @@ const TeamMembers = ({ teamId }) => {
                 {members.map(member => (
                     <div key={member.id} className="flex justify-between items-center bg-gray-50 p-3 rounded-lg">
                         <div>
-                            <p className="font-medium text-sm">{member.username}</p>
+                            <p className="font-medium text-sm">{member.firstName} {member.lastName}</p>
                             <p className="text-xs text-gray-500">{member.email}</p>
                         </div>
                         <button
@@ -75,6 +88,9 @@ const TeamMembers = ({ teamId }) => {
                         </button>
                     </div>
                 ))}
+                {members.length === 0 && (
+                    <p className="text-gray-500 text-sm text-center py-4">No members yet</p>
+                )}
             </div>
         </div>
     );

@@ -75,6 +75,11 @@ export const api = {
         headers: getAuthHeaders()
     }).then(handleResponse),
 
+    getTeamMembers: (teamId) => fetch(`${API_BASE.users}/teams/${teamId}/users`, {
+            headers: getAuthHeaders()
+        }
+    ).then(handleResponse),
+
     createTeam: (data) => fetch(`${API_BASE.users}/teams`, {
         method: 'POST',
         headers: getAuthHeaders(),
@@ -170,4 +175,5 @@ export const api = {
         method: 'DELETE',
         headers: getAuthHeaders()
     }).then(handleResponse),
+
 };
