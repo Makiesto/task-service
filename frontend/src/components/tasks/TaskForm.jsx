@@ -4,7 +4,7 @@ import { api } from '../../api/api';
 import { useApp } from '../../context/AppContext';
 
 export default function TaskForm({ task, onClose, onSuccess }) {
-  const { projects, users } = useApp();
+  const { projects, users, logout } = useApp();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [formData, setFormData] = useState({
@@ -48,17 +48,17 @@ export default function TaskForm({ task, onClose, onSuccess }) {
     } catch (err) {
       console.error('Error saving task:', err);
 
+      if (err.isAuthError || err.status === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('currentUser');
+        logout();
+        return;
+      }
+
       let errorMessage = 'Failed to save task. Please try again.';
 
-      try {
-        const errorData = await err.json?.() || err;
-        if (errorData.message) {
-          errorMessage = errorData.message;
-        } else if (err.message) {
-          errorMessage = err.message;
-        }
-      } catch (parseError) {
-        // If we can't parse the error, use default message
+      if (err.message) {
+        errorMessage = err.message;
       }
 
       if (errorMessage.includes('deadline') || errorMessage.includes('past')) {

@@ -11,14 +11,30 @@ export default function LoginPage() {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
-    const handleSubmit = async () => {
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        console.log('=== LOGIN BUTTON CLICKED ===');
+        console.log('Form data:', formData);
+
         setError('');
         setLoading(true);
 
-        const result = await login(formData);
+        try {
+            console.log('Calling login function...');
+            const result = await login(formData);
+            console.log('Login result:', result);
 
-        if (!result.success) {
-            setError(result.message || 'Invalid email or password');
+            if (!result.success) {
+                console.log('Login failed:', result.message);
+                setError(result.message || 'Invalid email or password');
+            } else {
+                console.log('Login successful!');
+            }
+        } catch (err) {
+            console.error('Login exception:', err);
+            setError('An error occurred during login');
+        } finally {
             setLoading(false);
         }
     };
@@ -42,7 +58,7 @@ export default function LoginPage() {
                     </div>
                 )}
 
-                <div className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                             Email Address
@@ -53,7 +69,7 @@ export default function LoginPage() {
                             value={formData.email}
                             onChange={e => setFormData({...formData, email: e.target.value})}
                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            onKeyPress={e => e.key === 'Enter' && handleSubmit()}
+                            required
                         />
                     </div>
 
@@ -67,18 +83,18 @@ export default function LoginPage() {
                             value={formData.password}
                             onChange={e => setFormData({...formData, password: e.target.value})}
                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            onKeyPress={e => e.key === 'Enter' && handleSubmit()}
+                            required
                         />
                     </div>
 
                     <button
-                        onClick={handleSubmit}
+                        type="submit"
                         disabled={loading}
                         className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {loading ? 'Signing in...' : 'Sign In'}
                     </button>
-                </div>
+                </form>
 
                 <div className="mt-6 text-center">
                     <p className="text-sm text-gray-600">
@@ -97,8 +113,6 @@ export default function LoginPage() {
                     <p className="font-mono mt-1">test@example.com / pass</p>
                 </div>
             </div>
-
-
         </div>
     );
 }
