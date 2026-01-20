@@ -27,20 +27,35 @@ export function AppProvider({children}) {
         }
     }, []);
 
-    useEffect(() => {
+    const fetchAllData = () => {
         fetchUsers();
         fetchTeams();
         fetchTasks();
         fetchProjects();
+    };
+
+    useEffect(() => {
+        const savedUser = localStorage.getItem('currentUser');
+        const token = localStorage.getItem('token');
+
+        if (savedUser && token) {
+            setCurrentUser(JSON.parse(savedUser));
+            setCurrentPage('dashboard');
+            fetchAllData();
+        }
     }, []);
+
 
     const login = async (credentials) => {
         try {
             const response = await api.login(credentials);
             if (response.id && response.token) {
-                setCurrentUser(response);
-                localStorage.setItem('currentUser', JSON.stringify(response));
                 localStorage.setItem('token', response.token);
+                localStorage.setItem('currentUser', JSON.stringify(response));
+                setCurrentUser(response);
+
+                fetchAllData();
+
                 setCurrentPage('dashboard');
                 return {success: true};
             } else {
@@ -93,6 +108,7 @@ export function AppProvider({children}) {
             console.error('Error fetching projects:', err);
         }
     };
+
 
     const value = {
         currentPage, setCurrentPage,

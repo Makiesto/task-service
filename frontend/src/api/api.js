@@ -120,11 +120,34 @@ export const api = {
         headers: getAuthHeaders()
     }).then(r => r.json()),
 
-    createTask: (data) => fetch(`${API_BASE.tasks}/tasks`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify(data),
-    }),
+    createTask: async (data) => {
+        const response = await fetch(`${API_BASE.tasks}/tasks`, {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+            throw await response.json();
+        }
+
+        return response.json();
+    },
+
+    updateTask: async (id, data) => {
+        const response = await fetch(`${API_BASE.tasks}/tasks/${id}`, {
+            method: 'PUT',
+            headers: getAuthHeaders(),
+            body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw error;
+        }
+
+        return response.json();
+    },
 
     updateTaskStatus: (id, status) => fetch(`${API_BASE.tasks}/tasks/${id}/status`, {
         method: 'PATCH',
@@ -182,7 +205,7 @@ export const api = {
     assignUsersToTask: (taskId, userEmails) => fetch(`${API_BASE.tasks}/tasks/${taskId}/assign-users`, {
         method: 'POST',
         headers: getAuthHeaders(),
-        body: JSON.stringify({ userEmails }),
+        body: JSON.stringify({userEmails}),
     }).then(r => r.json()),
 
     getTaskAssignments: (taskId) => fetch(`${API_BASE.tasks}/tasks/${taskId}/assignments`, {

@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import {useApp} from '../../context/AppContext';
 import {api} from '../../api/api';
+import {useRole} from "../../hooks/useRole.js";
 
 
 export default function TeamsPage() {
@@ -8,18 +9,23 @@ export default function TeamsPage() {
     const [showForm, setShowForm] = useState(false);
     const [editingTeamId, setEditingTeamId] = useState(null);
     const [availableUsers, setAvailableUsers] = useState([]);
+    const {currentUser} = useRole();
+
+    const isAdmin = currentUser?.role === 'ADMIN';
 
     const fetchAvailableUsers = async () => {
         try {
             const data = await api.getAvailableUsers();
             setAvailableUsers(data);
         } catch (error) {
-            console.error("Błąd w TeamsPage:", error);
+            console.error("Error in TeamsPage:", error);
         }
     };
 
     const handleAddMember = async (teamId, userId) => {
+        if (!isAdmin) return;
         const res = await api.addUserToTeam(teamId, userId);
+
         if (res.ok) {
             setAvailableUsers(prev => prev.filter(u => u.id !== parseInt(userId)));
 
@@ -28,6 +34,7 @@ export default function TeamsPage() {
     };
 
     const handleRemoveMember = async (teamId, userId) => {
+        if (!isAdmin) return;
         if (confirm("Are you sure you want to remove this member?")) {
             try {
                 const res = await api.removeUserFromTeam(teamId, userId);
@@ -52,12 +59,14 @@ export default function TeamsPage() {
                     <div key={team.id} className="bg-white rounded-xl shadow-sm border p-6">
                         <div className="flex justify-between items-start mb-4">
                             <h4 className="text-xl font-bold">{team.name}</h4>
-                            <button
-                                onClick={() => setEditingTeamId(editingTeamId === team.id ? null : team.id)}
-                                className="text-sm text-blue-600 hover:underline"
-                            >
-                                {editingTeamId === team.id ? 'Close' : 'Manage Members'}
-                            </button>
+                            {isAdmin && (
+                                <button
+                                    onClick={() => setEditingTeamId(editingTeamId === team.id ? null : team.id)}
+                                    className="text-sm text-blue-600 hover:underline"
+                                >
+                                    {editingTeamId === team.id ? 'Close' : 'Manage Members'}
+                                </button>
+                            )}
                         </div>
 
                         {editingTeamId === team.id ? (

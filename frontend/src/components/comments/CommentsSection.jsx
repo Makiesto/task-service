@@ -6,14 +6,32 @@ const CommentsSection = ({taskId, currentUserId}) => {
     const [comments, setComments] = useState([]);
     const [content, setContent] = useState("");
     const [error, setError] = useState(null);
+    const [userNames, setUserNames] = useState({});
 
     useEffect(() => {
         const fetchComments = async () => {
             try {
                 const data = await api.getCommentsByTaskId(taskId);
                 setComments(data);
+
+                const uniqueUserIds = [...new Set(data.map(c => c.userId))];
+                const names = {};
+
+                await Promise.all(
+                    uniqueUserIds.map(async (userId) => {
+                        try {
+                            const user = await api.getUserById(userId);
+                            names[userId] = `${user.firstName} ${user.lastName}`;
+                        } catch (err) {
+                            names[userId] = 'Unknown User';
+                        }
+                    })
+                );
+
+                setUserNames(names);
             } catch (err) {
                 setError("Failed to load comments.");
+                console.error('Error fetching comments:', err);
             }
         };
         if (taskId) fetchComments();
@@ -29,10 +47,26 @@ const CommentsSection = ({taskId, currentUserId}) => {
                 userId: currentUserId,
                 taskId: taskId
             });
+
+            try {
+                const user = await api.getUserById(currentUserId);
+                setUserNames(prev => ({
+                    ...prev,
+                    [currentUserId]: `${user.firstName} ${user.lastName}`
+                }));
+            } catch (err) {
+                setUserNames(prev => ({
+                    ...prev,
+                    [currentUserId]: 'You'
+                }));
+            }
+
             setComments([newComment, ...comments]);
             setContent("");
+            setError(null);
         } catch (err) {
             setError("Could not post comment.");
+            console.error('Error posting comment:', err);
         }
     };
 
@@ -40,17 +74,14 @@ const CommentsSection = ({taskId, currentUserId}) => {
         if (!window.confirm("Delete this comment?")) return;
 
         try {
-            const response = await api.deleteComment(commentId);
-            if (response.ok) {
-                setComments(comments.filter(c => c.id !== commentId));
-            } else {
-                throw new Error();
-            }
+            await api.deleteComment(commentId);
+            setComments(comments.filter(c => c.id !== commentId));
+            setError(null);
         } catch (err) {
             setError("Error deleting comment.");
+            console.error('Error deleting comment:', err);
         }
     };
-
 
     return (
         <div className="space-y-4">
@@ -92,14 +123,13 @@ const CommentsSection = ({taskId, currentUserId}) => {
                             <div className="flex justify-between items-start mb-1">
                                 <div className="flex flex-col">
                                     <span className="font-bold text-xs text-blue-600">
-                                        User #{comment.userId}
+                                        {userNames[comment.userId] || 'Loading...'}
                                     </span>
                                     <span className="text-[10px] text-gray-400">
                                         {new Date(comment.createdAt).toLocaleString()}
                                     </span>
                                 </div>
 
-                                {/* Przycisk usuwania widoczny dla autora */}
                                 {comment.userId === currentUserId && (
                                     <button
                                         onClick={() => handleDelete(comment.id)}
