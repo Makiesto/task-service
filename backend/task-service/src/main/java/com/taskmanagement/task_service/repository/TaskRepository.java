@@ -15,9 +15,6 @@ import java.util.List;
 
 @Repository
 public interface TaskRepository extends JpaRepository<Task, Long> {
-    boolean existsByTitle(String title);
-
-    boolean existsByTitleAndIdNot(@NotBlank(message = "Title is required") String title, Long id);
 
     List<Task> findByAssignedToEmail(String email);
 
@@ -33,5 +30,4 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     Long countByAssignedToEmailAndPriority(String email,
                                            Priority priority);
 
-    List<Task> findByTeamId(Long teamId);
 }

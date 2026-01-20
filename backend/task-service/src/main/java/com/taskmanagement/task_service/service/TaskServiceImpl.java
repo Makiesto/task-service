@@ -57,10 +57,6 @@ public class TaskServiceImpl implements TaskService {
 
         validateAssignedUser(taskDTO.getAssignedToEmail());
 
-        if (taskRepository.existsByTitle(taskDTO.getTitle())) {
-            throw new DuplicateTitleException("Task with this title already exists");
-        }
-
         if (taskDTO.getDeadline().isBefore(LocalDateTime.now())) {
             throw new DeadlineBeforeTodayException("Task deadline cannot be set in past");
         }
@@ -78,7 +74,8 @@ public class TaskServiceImpl implements TaskService {
         System.out.println("Creating task: " + taskEntity.getTitle());
         Task savedTask = taskRepository.save(taskEntity);
 
-        if (savedTask.getAssignedToEmail() != null) {
+        if (savedTask.getAssignedToEmail() != null && !savedTask.getAssignedToEmail().isBlank()) {
+
 
             UserDTO user = userClient.getUserByEmail(savedTask.getAssignedToEmail());
 
@@ -110,10 +107,6 @@ public class TaskServiceImpl implements TaskService {
                 .orElseThrow(() -> new RuntimeException("Task not found with id: " + id));
 
         validateAssignedUser(taskDTO.getAssignedToEmail());
-
-        if (taskRepository.existsByTitleAndIdNot(taskDTO.getTitle(), id)) {
-            throw new DuplicateTitleException("Task with this title already exists");
-        }
 
         if (taskDTO.getDeadline().isBefore(LocalDateTime.now())) {
             throw new DeadlineBeforeTodayException("Task deadline cannot be set in past");
@@ -202,7 +195,7 @@ public class TaskServiceImpl implements TaskService {
                         .userName(user.getFirstName() + " " + user.getLastName())
                         .taskTitle(savedTask.getTitle())
                         .deadline(savedTask.getDeadline())
-                        .eventType("TASK_DONE")
+                        .eventType("TASK_COMPLETED")
                         .build();
 
                 rabbitTemplate.convertAndSend(
