@@ -9,6 +9,7 @@ import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.support.converter.JacksonJsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,11 +24,19 @@ public class RabbitMQConfig {
     private String userDeleteQueue;
 
     @Value("${spring.rabbitmq.exchange.user}")
-    private String exchangeName;
+    private String userExchange;
+
+    @Value("${spring.rabbitmq.exchange.task}")
+    private String taskExchange;
 
     @Bean
     public TopicExchange taskExchange() {
-        return new TopicExchange("task_exchange");
+        return new TopicExchange(taskExchange);
+    }
+
+    @Bean
+    public TopicExchange userExchange() {
+        return new TopicExchange(userExchange);
     }
 
     @Bean
@@ -36,7 +45,7 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    public Binding notificationBinding(Queue notificationQueue, TopicExchange taskExchange) {
+    public Binding notificationBinding(Queue notificationQueue, @Qualifier("taskExchange") TopicExchange taskExchange) {
         return BindingBuilder.bind(notificationQueue)
                 .to(taskExchange)
                 .with("task.event.*");
@@ -53,19 +62,14 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    public TopicExchange exchange() {
-        return new TopicExchange(exchangeName);
-    }
-
-    @Bean
-    public Binding binding(Queue queue, TopicExchange exchange) {
+    public Binding binding(Queue queue, @Qualifier("userExchange") TopicExchange userExchange) {
         return BindingBuilder.bind(queue)
-                .to(exchange)
+                .to(userExchange)
                 .with("user.update");
     }
 
     @Bean
-    public Binding userDeleteBinding(Queue userDeleteQueue, TopicExchange userExchange) {
+    public Binding userDeleteBinding(Queue userDeleteQueue, @Qualifier("userExchange") TopicExchange userExchange) {
         return BindingBuilder.bind(userDeleteQueue)
                 .to(userExchange)
                 .with("user.event.deleted");
