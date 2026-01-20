@@ -51,9 +51,15 @@ public class TeamRestContoller {
         return ResponseEntity.ok(teamService.findTeamByName(name));
     }
 
+    @GetMapping("/name/{id}/users")
+    public ResponseEntity<List<UserResponseDTO>> getUsersByTeamId(@PathVariable Long id) {
+        List<UserResponseDTO> users = userService.getUsersByTeamId(id);
+        return ResponseEntity.ok(users);
+    }
+
     @GetMapping("/name/{name}/users")
     public ResponseEntity<List<UserResponseDTO>> getUsersByTeamName(@PathVariable String name) {
-        List<UserResponseDTO> users = userService.findUsersByTeamName(name);
+        List<UserResponseDTO> users = userService.getUsersByTeamName(name);
         return ResponseEntity.ok(users);
     }
 

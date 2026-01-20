@@ -10,7 +10,6 @@ import com.taskmanagement.task_service.entity.Project;
 import com.taskmanagement.task_service.entity.Task;
 import com.taskmanagement.task_service.entity.TaskStatus;
 import com.taskmanagement.task_service.exception.DeadlineBeforeTodayException;
-import com.taskmanagement.task_service.exception.DuplicateTitleException;
 import com.taskmanagement.task_service.mapper.TaskMapper;
 import com.taskmanagement.task_service.repository.ProjectRepository;
 import com.taskmanagement.task_service.repository.TaskRepository;
@@ -18,10 +17,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -57,6 +56,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    @Transactional
     public TaskDTO createTask(TaskDTO taskDTO) {
 
         validateAssignedUser(taskDTO.getAssignedToEmail());
@@ -104,6 +104,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    @Transactional
     public TaskDTO updateTask(Long id, TaskDTO taskDTO) {
 
         // in future return own exception
@@ -131,6 +132,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    @Transactional
     public void deleteTask(Long id) {
         // in future return own exception
 
@@ -143,6 +145,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    @Transactional
     public TaskDTO assignTaskToUser(Long id, String assignedToEmail) {
 
         Task task = taskRepository.findById(id)
@@ -177,6 +180,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    @Transactional
     public TaskDTO updateTaskStatus(Long id, String newStatus) {
 
         Task task = taskRepository.findById(id)
