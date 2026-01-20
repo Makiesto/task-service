@@ -14,7 +14,7 @@ export default function TasksPage() {
     const [showAttachmentsModal, setShowAttachmentsModal] = useState(false);
     const [selectedTask, setSelectedTask] = useState(null);
     const [taskAssignments, setTaskAssignments] = useState({});
-    const {canDeleteTask, canAssignUsers, canUpdateTaskStatus, currentUser, isDeveloper} = useRole();
+    const {canDeleteTask, canAssignUsers, canUpdateTaskStatus, canCreateTask, currentUser, isDeveloper} = useRole();
     const [showTaskForm, setShowTaskForm] = useState(false);
     const [showCommentsTaskId, setShowCommentsTaskId] = useState(null);
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
@@ -204,7 +204,7 @@ export default function TasksPage() {
                     {isDeveloper && <p className="text-sm text-gray-500 mt-1">Showing only tasks assigned to you</p>}
                 </div>
 
-                {!isDeveloper && (
+                {canCreateTask && (
                     <button
                         onClick={() => setShowTaskForm(true)}
                         className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
@@ -305,7 +305,11 @@ export default function TasksPage() {
             {sortedTasks.length === 0 && (
                 <div className="text-center py-12 text-gray-500">
                     <p className="text-lg">No tasks found</p>
-                    <p className="text-sm mt-2">Create your first task to get started</p>
+                    {isDeveloper ? (
+                        <p className="text-sm mt-2">You don't have any tasks assigned yet</p>
+                    ) : (
+                        <p className="text-sm mt-2">Create your first task to get started</p>
+                    )}
                 </div>
             )}
 

@@ -9,7 +9,7 @@ export default function ProjectsPage() {
   const { projects, fetchProjects } = useApp();
   const [showForm, setShowForm] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
-  const { canCreateProject, canDeleteProject } = useRole();
+  const { canCreateProject, canDeleteProject, isDeveloper } = useRole();
 
   const handleDelete = async (id) => {
     if (!confirm('Delete this project?')) return;
@@ -44,7 +44,12 @@ export default function ProjectsPage() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h3 className="text-xl font-semibold">All Projects ({projects.length})</h3>
+        <div>
+          <h3 className="text-xl font-semibold">
+            {isDeveloper ? 'My Projects' : 'All Projects'} ({projects.length})
+          </h3>
+          {isDeveloper && <p className="text-sm text-gray-500 mt-1">Projects with tasks assigned to you</p>}
+        </div>
         {canCreateProject && (
           <button
             onClick={() => setShowForm(true)}
@@ -63,45 +68,75 @@ export default function ProjectsPage() {
         />
       )}
 
-      <div className="grid grid-cols-3 gap-6">
-        {projects.map(project => (
-          <div key={project.id} className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
-            <div className="flex justify-between items-start mb-4">
-              <h4 className="text-xl font-bold">{project.name}</h4>
-              <div className="flex gap-2">
+      {projects.length === 0 ? (
+        <div className="bg-white rounded-lg shadow p-12 text-center">
+          <div className="max-w-md mx-auto">
+            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Eye size={32} className="text-gray-400" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">No Projects Found</h3>
+            {isDeveloper ? (
+              <p className="text-gray-600">
+                You don't have any projects with assigned tasks yet.
+                When you're assigned tasks in a project, it will appear here.
+              </p>
+            ) : (
+              <>
+                <p className="text-gray-600 mb-4">
+                  Get started by creating your first project to organize your tasks.
+                </p>
+                <button
+                  onClick={() => setShowForm(true)}
+                  className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-medium"
+                >
+                  <Plus size={20} />
+                  Create First Project
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-3 gap-6">
+          {projects.map(project => (
+            <div key={project.id} className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
+              <div className="flex justify-between items-start mb-4">
+                <h4 className="text-xl font-bold">{project.name}</h4>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleViewDetails(project.id)}
+                    className="text-blue-600 hover:text-blue-800"
+                    title="View Details"
+                  >
+                    <Eye size={18} />
+                  </button>
+                  {canDeleteProject && (
+                    <button
+                      onClick={() => handleDelete(project.id)}
+                      className="text-red-600 hover:text-red-800"
+                      title="Delete Project"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  )}
+                </div>
+              </div>
+              <p className="text-gray-600 mb-4">{project.description}</p>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-gray-500">
+                  Tasks: {project.numberOfTasks || 0}
+                </span>
                 <button
                   onClick={() => handleViewDetails(project.id)}
-                  className="text-blue-600 hover:text-blue-800"
-                  title="View Details"
+                  className="text-blue-600 hover:underline"
                 >
-                  <Eye size={18} />
+                  View Details →
                 </button>
-                {canDeleteProject && (
-                  <button
-                    onClick={() => handleDelete(project.id)}
-                    className="text-red-600 hover:text-red-800"
-                    title="Delete Project"
-                  >
-                    <Trash2 size={18} />
-                  </button>
-                )}
               </div>
             </div>
-            <p className="text-gray-600 mb-4">{project.description}</p>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-500">
-                Tasks: {project.numberOfTasks || 0}
-              </span>
-              <button
-                onClick={() => handleViewDetails(project.id)}
-                className="text-blue-600 hover:underline"
-              >
-                View Details →
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
