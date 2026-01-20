@@ -12,7 +12,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,15 +31,13 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final TeamRepository teamRepository;
-
     private final UserMapper userMapper;
-
     private final RabbitTemplate rabbitTemplate;
+    private final JwtUtil jwtUtil;
+    private final PasswordEncoder passwordEncoder;
 
     @Value("${spring.rabbitmq.exchange.user}")
     private String userExchange;
-
-    private final JwtUtil jwtUtil;
 
     @Override
     @Transactional
@@ -48,7 +49,8 @@ public class UserServiceImpl implements UserService {
         }
 
         User user = userMapper.toEntity(userRequestDTO);
-        // TODO: Hash password
+
+        user.setPassword(passwordEncoder.encode(userRequestDTO.getPassword()));
 
         User saved = setTeamName(userRequestDTO, user);
         System.out.println("Creating user with name: " + saved.getFirstName());
@@ -124,6 +126,11 @@ public class UserServiceImpl implements UserService {
         }
 
         userMapper.updateEntityFromDTO(userRequestDTO, user);
+
+        if (userRequestDTO.getPassword() != null && !userRequestDTO.getPassword().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(userRequestDTO.getPassword()));
+        }
+
         System.out.println("Updating user: " + user.getEmail());
 
         User saved = setTeamName(userRequestDTO, user);
@@ -182,8 +189,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByEmail(loginRequestDTO.getEmail())
                 .orElseThrow(() -> new RuntimeException("Invalid email or password"));
 
-        // (TODO: w przyszłości użyj BCrypt)
-        if (!user.getPassword().equals(loginRequestDTO.getPassword())) {
+        if (!passwordEncoder.matches(loginRequestDTO.getPassword(), user.getPassword())) {
             throw new RuntimeException("Invalid email or password");
         }
 
@@ -226,13 +232,11 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
 
-        // (TODO: BCrypt)
-        if (!user.getPassword().equals(changePasswordDTO.getOldPassword())) {
+        if (!passwordEncoder.matches(changePasswordDTO.getOldPassword(), user.getPassword())) {
             throw new RuntimeException("Old password is incorrect");
         }
 
-        // (TODO:BCrypt)
-        user.setPassword(changePasswordDTO.getNewPassword());
+        user.setPassword(passwordEncoder.encode(changePasswordDTO.getNewPassword()));
         userRepository.save(user);
 
         System.out.println("Password changed for user: " + user.getEmail());

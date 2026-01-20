@@ -25,6 +25,22 @@ public class RabbitMQConfig {
     @Value("${spring.rabbitmq.exchange.user}")
     private String exchangeName;
 
+    @Bean
+    public TopicExchange taskExchange() {
+        return new TopicExchange("task_exchange");
+    }
+
+    @Bean
+    public Queue notificationQueue() {
+        return new Queue("notification_queue", true);
+    }
+
+    @Bean
+    public Binding notificationBinding(Queue notificationQueue, TopicExchange taskExchange) {
+        return BindingBuilder.bind(notificationQueue)
+                .to(taskExchange)
+                .with("task.event.*");
+    }
 
     @Bean
     public Queue queue() {
@@ -44,8 +60,8 @@ public class RabbitMQConfig {
     @Bean
     public Binding binding(Queue queue, TopicExchange exchange) {
         return BindingBuilder.bind(queue)
-            .to(exchange)
-            .with("user.update");
+                .to(exchange)
+                .with("user.update");
     }
 
     @Bean

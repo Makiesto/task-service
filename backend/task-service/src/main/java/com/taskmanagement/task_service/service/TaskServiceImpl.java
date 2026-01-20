@@ -16,6 +16,7 @@ import com.taskmanagement.task_service.repository.ProjectRepository;
 import com.taskmanagement.task_service.repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -34,6 +35,9 @@ public class TaskServiceImpl implements TaskService {
     private final UserClient userClient;
 
     private final RabbitTemplate rabbitTemplate;
+
+    @Value("${spring.rabbitmq.exchange.task}")
+    private String taskExchange;
 
     @Override
     public List<TaskDTO> findAllTasks() {
@@ -89,7 +93,7 @@ public class TaskServiceImpl implements TaskService {
                     .build();
 
             rabbitTemplate.convertAndSend(
-                    "task_exchange",
+                    taskExchange,
                     "task.event.created",
                     event
             );
