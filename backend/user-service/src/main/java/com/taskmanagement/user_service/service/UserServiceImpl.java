@@ -16,7 +16,10 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -233,5 +236,25 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
 
         System.out.println("Password changed for user: " + user.getEmail());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<UserResponseDTO> getVisibleUsersForDeveloper(String developerEmail) {
+        User developer = userRepository.findByEmail(developerEmail)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Set<User> visibleUsers = new HashSet<>();
+
+        visibleUsers.add(developer);
+
+        if (developer.getTeam() != null) {
+            List<User> teamMembers = userRepository.findByTeamId(developer.getTeam().getId());
+            visibleUsers.addAll(teamMembers);
+        }
+
+        return visibleUsers.stream()
+                .map(userMapper::toResponseDTO)
+                .collect(Collectors.toList());
     }
 }

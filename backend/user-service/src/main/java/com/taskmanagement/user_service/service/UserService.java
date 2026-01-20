@@ -3,6 +3,7 @@ package com.taskmanagement.user_service.service;
 import com.taskmanagement.user_service.dto.*;
 import com.taskmanagement.user_service.entity.UserRole;
 import jakarta.validation.Valid;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
@@ -32,4 +33,7 @@ public interface UserService {
     UserResponseDTO updateProfile(Long id, UserRequestDTO userRequestDTO);
 
     void changePassword(Long id, ChangePasswordDTO changePasswordDTO);
+
+    List<UserResponseDTO> getVisibleUsersForDeveloper(String developerEmail);
+
 }

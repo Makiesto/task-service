@@ -35,6 +35,7 @@ public class LoginRestController {
         }
     }
 
+
     @GetMapping("/validate")
     public ResponseEntity<String> validateToken(@RequestHeader("Authorization") String token) {
         return ResponseEntity.ok("Token is valid");

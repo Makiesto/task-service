@@ -5,6 +5,7 @@ import com.taskmanagement.user_service.dto.UserRequestDTO;
 import com.taskmanagement.user_service.dto.UserResponseDTO;
 import com.taskmanagement.user_service.entity.UserRole;
 import com.taskmanagement.user_service.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +22,16 @@ public class UserRestController {
     private final UserService userService;
 
     @GetMapping
-    public ResponseEntity<List<UserResponseDTO>> findAll() {
+    public ResponseEntity<List<UserResponseDTO>> findAll(HttpServletRequest request) {
+        String userRole = request.getHeader("X-User-Role");
+        String userEmail = request.getHeader("X-User-Email");
+
+        if ("DEVELOPER".equals(userRole)) {
+            // DEVELOPER widzi tylko użytkowników z jego teamu/projektów
+            return ResponseEntity.ok(userService.getVisibleUsersForDeveloper(userEmail));
+        }
+
+        // ADMIN i MANAGER widzą wszystkich
         return ResponseEntity.ok(userService.findAllUsers());
     }
 
