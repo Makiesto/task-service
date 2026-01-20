@@ -27,11 +27,9 @@ public class UserRestController {
         String userEmail = request.getHeader("X-User-Email");
 
         if ("DEVELOPER".equals(userRole)) {
-            // DEVELOPER widzi tylko użytkowników z jego teamu/projektów
             return ResponseEntity.ok(userService.getVisibleUsersForDeveloper(userEmail));
         }
 
-        // ADMIN i MANAGER widzą wszystkich
         return ResponseEntity.ok(userService.findAllUsers());
     }
 
@@ -70,6 +68,12 @@ public class UserRestController {
     @GetMapping("/no-team")
     public ResponseEntity<List<UserResponseDTO>> getUsersWithoutTeam() {
         return ResponseEntity.ok(userService.getUsersWithoutTeam());
+    }
+
+    @GetMapping("/{id}/members")
+    public ResponseEntity<List<UserResponseDTO>> getTeamMembers(@PathVariable Long id) {
+        List<UserResponseDTO> users = userService.getUsersByTeamId(id);
+        return ResponseEntity.ok(users);
     }
 
     @PutMapping("/{id}/profile")

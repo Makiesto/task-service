@@ -101,13 +101,25 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserResponseDTO> findUsersByTeamName(String teamName) {
+    public List<UserResponseDTO> getUsersByTeamName(String teamName) {
 
         if (!teamRepository.existsByName(teamName)) {
             throw new RuntimeException("Team not found");
         }
 
         List<User> users = userRepository.findByTeamName(teamName);
+
+        return userMapper.toResponseDTOList(users);
+    }
+
+    @Override
+    public List<UserResponseDTO> getUsersByTeamId(Long teamId) {
+
+        if (!teamRepository.existsById(teamId)) {
+            throw new RuntimeException("Team not found");
+        }
+
+        List<User> users = userRepository.findByTeamId(teamId);
 
         return userMapper.toResponseDTOList(users);
     }
