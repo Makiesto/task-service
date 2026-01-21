@@ -11,11 +11,12 @@ import com.taskmanagement.task_service.entity.Task;
 import com.taskmanagement.task_service.entity.TaskStatus;
 import com.taskmanagement.task_service.entity.TaskAssignment;
 import com.taskmanagement.task_service.exception.DeadlineBeforeTodayException;
-import com.taskmanagement.task_service.exception.DuplicateTitleException;
 import com.taskmanagement.task_service.mapper.TaskMapper;
 import com.taskmanagement.task_service.repository.ProjectRepository;
 import com.taskmanagement.task_service.repository.TaskRepository;
 import com.taskmanagement.task_service.repository.TaskAssignmentRepository;
+import com.taskmanagement.task_service.repository.CommentRepository;
+import com.taskmanagement.task_service.repository.FileAttachmentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +32,8 @@ public class TaskServiceImpl implements TaskService {
     private final TaskRepository taskRepository;
     private final ProjectRepository projectRepository;
     private final TaskAssignmentRepository taskAssignmentRepository;
+    private final CommentRepository commentRepository;
+    private final FileAttachmentRepository fileAttachmentRepository;
 
     private final TaskMapper taskMapper;
 
@@ -49,7 +51,6 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public TaskDTO findTaskById(Long id) {
-        // in future return own exception
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Task not found with id: " + id));
 
@@ -116,7 +117,6 @@ public class TaskServiceImpl implements TaskService {
     @Transactional
     public TaskDTO updateTask(Long id, TaskDTO taskDTO) {
 
-        // in future return own exception
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Task not found with id: " + id));
 
@@ -164,15 +164,26 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    @Transactional
     public void deleteTask(Long id) {
-        // in future return own exception
-
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Task not found with id: " + id));
 
-        taskRepository.delete(task);
-        System.out.println("Deleted task  with id: " + id);
+        taskAssignmentRepository.deleteAll(
+            taskAssignmentRepository.findByTaskId(id)
+        );
+        System.out.println("Deleted task assignments for task: " + id);
 
+        commentRepository.deleteAll(
+            commentRepository.findByTaskId(id)
+        );
+        System.out.println("Deleted comments for task: " + id);
+
+        fileAttachmentRepository.deleteByTaskId(id);
+        System.out.println("Deleted file attachments for task: " + id);
+
+        taskRepository.delete(task);
+        System.out.println("Deleted task with id: " + id);
     }
 
     @Override
@@ -221,7 +232,6 @@ public class TaskServiceImpl implements TaskService {
         );
 
         return taskMapper.toDTO(savedTask);
-
     }
 
     @Override
@@ -296,6 +306,4 @@ public class TaskServiceImpl implements TaskService {
                 .criticalPriorityTasks(critical)
                 .build();
     }
-
-
 }
