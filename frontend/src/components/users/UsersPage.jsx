@@ -43,7 +43,7 @@ export default function UsersPage() {
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
-                <h3 className="text-xl font-semibold">All Users ({users.length})</h3>
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">All Users ({users.length})</h3>
                 {canCreateUsers && (
                     <button
                         onClick={() => {

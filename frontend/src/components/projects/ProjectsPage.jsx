@@ -45,7 +45,7 @@ export default function ProjectsPage() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h3 className="text-xl font-semibold">
+          <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
             {isDeveloper ? 'My Projects' : 'All Projects'} ({projects.length})
           </h3>
           {isDeveloper && <p className="text-sm text-gray-500 mt-1">Projects with tasks assigned to you</p>}
