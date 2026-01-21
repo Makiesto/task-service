@@ -9,18 +9,21 @@ import com.taskmanagement.task_service.entity.Priority;
 import com.taskmanagement.task_service.entity.Project;
 import com.taskmanagement.task_service.entity.Task;
 import com.taskmanagement.task_service.entity.TaskStatus;
+import com.taskmanagement.task_service.entity.TaskAssignment;
 import com.taskmanagement.task_service.exception.DeadlineBeforeTodayException;
+import com.taskmanagement.task_service.exception.DuplicateTitleException;
 import com.taskmanagement.task_service.mapper.TaskMapper;
 import com.taskmanagement.task_service.repository.ProjectRepository;
 import com.taskmanagement.task_service.repository.TaskRepository;
+import com.taskmanagement.task_service.repository.TaskAssignmentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -28,15 +31,13 @@ public class TaskServiceImpl implements TaskService {
 
     private final TaskRepository taskRepository;
     private final ProjectRepository projectRepository;
+    private final TaskAssignmentRepository taskAssignmentRepository;
 
     private final TaskMapper taskMapper;
 
     private final UserClient userClient;
 
     private final RabbitTemplate rabbitTemplate;
-
-    @Value("${spring.rabbitmq.exchange.task}")
-    private String taskExchange;
 
     @Override
     public List<TaskDTO> findAllTasks() {
@@ -79,9 +80,17 @@ public class TaskServiceImpl implements TaskService {
         Task savedTask = taskRepository.save(taskEntity);
 
         if (savedTask.getAssignedToEmail() != null && !savedTask.getAssignedToEmail().isBlank()) {
-
-
             UserDTO user = userClient.getUserByEmail(savedTask.getAssignedToEmail());
+
+            TaskAssignment assignment = TaskAssignment.builder()
+                    .task(savedTask)
+                    .userId(user.getId())
+                    .userEmail(user.getEmail())
+                    .userName(user.getFirstName() + " " + user.getLastName())
+                    .build();
+
+            taskAssignmentRepository.save(assignment);
+            System.out.println("Created TaskAssignment for user: " + user.getEmail());
 
             TaskEventDTO event = TaskEventDTO.builder()
                     .userId(user.getId())
@@ -93,7 +102,7 @@ public class TaskServiceImpl implements TaskService {
                     .build();
 
             rabbitTemplate.convertAndSend(
-                    taskExchange,
+                    "task_exchange",
                     "task.event.created",
                     event
             );
@@ -111,6 +120,7 @@ public class TaskServiceImpl implements TaskService {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Task not found with id: " + id));
 
+        String oldEmail = task.getAssignedToEmail();
         validateAssignedUser(taskDTO.getAssignedToEmail());
 
         if (taskDTO.getDeadline().isBefore(LocalDateTime.now())) {
@@ -128,11 +138,32 @@ public class TaskServiceImpl implements TaskService {
             task.setProject(null);
         }
 
-        return taskMapper.toDTO(taskRepository.save(task));
+        Task savedTask = taskRepository.save(task);
+
+        String newEmail = taskDTO.getAssignedToEmail();
+        if (newEmail != null && !newEmail.isBlank() && !newEmail.equals(oldEmail)) {
+            if (oldEmail != null && !oldEmail.isBlank()) {
+                taskAssignmentRepository.deleteByTaskIdAndUserEmail(id, oldEmail);
+            }
+
+            UserDTO user = userClient.getUserByEmail(newEmail);
+            TaskAssignment assignment = TaskAssignment.builder()
+                    .task(savedTask)
+                    .userId(user.getId())
+                    .userEmail(user.getEmail())
+                    .userName(user.getFirstName() + " " + user.getLastName())
+                    .build();
+
+            taskAssignmentRepository.save(assignment);
+            System.out.println("Updated TaskAssignment for user: " + user.getEmail());
+        } else if ((newEmail == null || newEmail.isBlank()) && oldEmail != null && !oldEmail.isBlank()) {
+            taskAssignmentRepository.deleteByTaskIdAndUserEmail(id, oldEmail);
+        }
+
+        return taskMapper.toDTO(savedTask);
     }
 
     @Override
-    @Transactional
     public void deleteTask(Long id) {
         // in future return own exception
 
@@ -155,10 +186,24 @@ public class TaskServiceImpl implements TaskService {
 
         UserDTO user = userClient.getUserByEmail(assignedToEmail);
 
+        String oldEmail = task.getAssignedToEmail();
         task.setAssignedToEmail(assignedToEmail);
         System.out.println("Assigning task: " + task.getTitle());
 
         Task savedTask = taskRepository.save(task);
+
+        if (oldEmail != null && !oldEmail.isBlank()) {
+            taskAssignmentRepository.deleteByTaskIdAndUserEmail(id, oldEmail);
+        }
+
+        TaskAssignment assignment = TaskAssignment.builder()
+                .task(savedTask)
+                .userId(user.getId())
+                .userEmail(user.getEmail())
+                .userName(user.getFirstName() + " " + user.getLastName())
+                .build();
+
+        taskAssignmentRepository.save(assignment);
 
         TaskEventDTO event = TaskEventDTO.builder()
                 .userId(user.getId())
@@ -180,7 +225,6 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    @Transactional
     public TaskDTO updateTaskStatus(Long id, String newStatus) {
 
         Task task = taskRepository.findById(id)

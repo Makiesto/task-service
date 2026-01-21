@@ -25,15 +25,26 @@ export default function TasksPage() {
 
     useEffect(() => {
         if (tasks.length > 0) {
-            fetchAllAssignments();
+            const timer = setTimeout(() => {
+                fetchAllAssignments();
+            }, 100);
+
+            return () => clearTimeout(timer);
         }
     }, [tasks]);
 
     const fetchAllAssignments = async () => {
+        if (tasks.length === 0) return;
+
         try {
             const assignmentPromises = tasks.map(async (task) => {
-                const assignments = await api.getTaskAssignments(task.id);
-                return {taskId: task.id, assignments};
+                try {
+                    const assignments = await api.getTaskAssignments(task.id);
+                    return {taskId: task.id, assignments};
+                } catch (err) {
+                    console.error(`Error fetching assignments for task ${task.id}:`, err);
+                    return {taskId: task.id, assignments: []};
+                }
             });
 
             const results = await Promise.all(assignmentPromises);
@@ -218,9 +229,15 @@ export default function TasksPage() {
             {showTaskForm && (
                 <TaskForm
                     onClose={() => setShowTaskForm(false)}
-                    onSuccess={() => {
-                        setShowTaskForm(false);
-                        fetchTasks();
+                    onSuccess={async () => {
+                        try {
+                            setShowTaskForm(false);
+                            await fetchTasks();
+                            await new Promise(resolve => setTimeout(resolve, 200));
+                            await fetchAllAssignments();
+                        } catch (err) {
+                            console.error('Error refreshing tasks:', err);
+                        }
                     }}
                 />
             )}
@@ -336,7 +353,18 @@ export default function TasksPage() {
             )}
 
             {showAssignModal && selectedTask && (
-                <AssignUsersModal task={selectedTask} onClose={() => { setShowAssignModal(false); setSelectedTask(null); }} onSuccess={() => { fetchTasks(); }} />
+                <AssignUsersModal
+                    task={selectedTask}
+                    onClose={() => {
+                        setShowAssignModal(false);
+                        setSelectedTask(null);
+                    }}
+                    onSuccess={async () => {
+                        await fetchTasks();
+                        await new Promise(resolve => setTimeout(resolve, 200));
+                        await fetchAllAssignments();
+                    }}
+                />
             )}
             {showAttachmentsModal && selectedTask && (
                 <FileAttachmentsModal task={selectedTask} onClose={() => { setShowAttachmentsModal(false); setSelectedTask(null); }} />

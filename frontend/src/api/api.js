@@ -26,11 +26,8 @@ const getAuthHeaders = () => {
     return headers;
 };
 
-// Helper function to handle response errors
 const handleResponse = async (response) => {
     if (response.status === 401) {
-        // Handle unauthorized - clear storage and throw error
-        // Don't redirect here - let the app handle it
         const error = new Error('Session expired. Please login again.');
         error.status = 401;
         error.isAuthError = true;
@@ -38,7 +35,6 @@ const handleResponse = async (response) => {
     }
 
     if (!response.ok) {
-        // Try to parse error as JSON, fallback to text
         let errorMessage;
         const contentType = response.headers.get('content-type');
 
