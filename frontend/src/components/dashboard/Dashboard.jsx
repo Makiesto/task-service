@@ -35,7 +35,7 @@ export default function Dashboard() {
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 transition-colors duration-200">
           <h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Tasks by Status</h3>
           <div className="space-y-3">
-            {['TODO', 'IN_PROGRESS', 'DONE'].map(status => (
+            {['TODO', 'IN_PROGRESS', 'COMPLETED'].map(status => (
               <div key={status} className="flex justify-between items-center">
                 <span className="text-gray-600 dark:text-gray-400">{status.replace('_', ' ')}</span>
                 <span className="font-bold text-lg text-gray-900 dark:text-white">
