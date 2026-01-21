@@ -105,7 +105,7 @@ export default function TasksPage() {
 
         return (
             <th
-                className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer hover:bg-gray-100 transition-colors select-none ${className}`}
+                className={`px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors select-none ${className}`}
                 onClick={() => handleSort(sortKey)}
             >
                 <div className="flex items-center gap-1">
@@ -113,11 +113,11 @@ export default function TasksPage() {
                     <div className="flex flex-col">
                         <ChevronUp
                             size={14}
-                            className={`${isActive && direction === 'asc' ? 'text-blue-600' : 'text-gray-300'}`}
+                            className={`${isActive && direction === 'asc' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-300 dark:text-gray-600'}`}
                         />
                         <ChevronDown
                             size={14}
-                            className={`-mt-1 ${isActive && direction === 'desc' ? 'text-blue-600' : 'text-gray-300'}`}
+                            className={`-mt-1 ${isActive && direction === 'desc' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-300 dark:text-gray-600'}`}
                         />
                     </div>
                 </div>
@@ -168,20 +168,20 @@ export default function TasksPage() {
 
     const getStatusColor = (status) => {
         switch (status) {
-            case 'TODO': return 'bg-gray-100 text-gray-700';
-            case 'IN_PROGRESS': return 'bg-blue-100 text-blue-700';
-            case 'DONE': return 'bg-green-100 text-green-700';
-            default: return 'bg-gray-100 text-gray-700';
+            case 'TODO': return 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200';
+            case 'IN_PROGRESS': return 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200';
+            case 'DONE': return 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200';
+            default: return 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200';
         }
     };
 
     const getPriorityColor = (priority) => {
         switch (priority) {
-            case 'CRITICAL': return 'bg-red-100 text-red-700';
-            case 'HIGH': return 'bg-orange-100 text-orange-700';
-            case 'MEDIUM': return 'bg-yellow-100 text-yellow-700';
-            case 'LOW': return 'bg-green-100 text-green-700';
-            default: return 'bg-gray-100 text-gray-700';
+            case 'CRITICAL': return 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200';
+            case 'HIGH': return 'bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-200';
+            case 'MEDIUM': return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-200';
+            case 'LOW': return 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200';
+            default: return 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200';
         }
     };
 
@@ -198,16 +198,16 @@ export default function TasksPage() {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <div>
-                    <h3 className="text-xl font-semibold">
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
                         {isDeveloper ? 'My Tasks' : 'All Tasks'} ({tasks.length})
                     </h3>
-                    {isDeveloper && <p className="text-sm text-gray-500 mt-1">Showing only tasks assigned to you</p>}
+                    {isDeveloper && <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Showing only tasks assigned to you</p>}
                 </div>
 
                 {canCreateTask && (
                     <button
                         onClick={() => setShowTaskForm(true)}
-                        className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                        className="flex items-center gap-2 bg-blue-600 dark:bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
                     >
                         <Plus size={20}/>
                         Create Task
@@ -225,28 +225,28 @@ export default function TasksPage() {
                 />
             )}
 
-            <div className="bg-white rounded-lg shadow">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow transition-colors duration-200">
                 <div className="overflow-x-auto">
                     <table className="w-full">
-                        <thead className="bg-gray-50 border-b">
+                        <thead className="bg-gray-50 dark:bg-gray-900 border-b dark:border-gray-700">
                         <tr>
                             <SortableHeader label="Task" sortKey="title" />
                             <SortableHeader label="Status" sortKey="status" />
                             <SortableHeader label="Priority" sortKey="priority" />
                             {!isDeveloper && <SortableHeader label="Assigned To" sortKey="assigned" />}
                             <SortableHeader label="Deadline" sortKey="deadline" />
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Actions</th>
                         </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-200">
+                        <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                         {sortedTasks.map(task => {
                             const assignments = taskAssignments[task.id] || [];
                             return (
-                                <tr key={task.id} className="hover:bg-gray-50">
+                                <tr key={task.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                                     <td className="px-6 py-4">
                                         <div>
-                                            <p className="font-semibold">{task.title}</p>
-                                            <p className="text-sm text-gray-600">{task.description}</p>
+                                            <p className="font-semibold text-gray-900 dark:text-white">{task.title}</p>
+                                            <p className="text-sm text-gray-600 dark:text-gray-400">{task.description}</p>
                                         </div>
                                     </td>
                                     <td className="px-6 py-4">
@@ -254,7 +254,7 @@ export default function TasksPage() {
                                             value={task.status}
                                             onChange={(e) => handleUpdateTaskStatus(task.id, e.target.value, task)}
                                             disabled={!canUpdateTaskStatus(task)}
-                                            className={`px-3 py-1 rounded text-sm ${getStatusColor(task.status)} ${!canUpdateTaskStatus(task) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                            className={`px-3 py-1 rounded text-sm ${getStatusColor(task.status)} ${!canUpdateTaskStatus(task) ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                                         >
                                             <option value="TODO">TODO</option>
                                             <option value="IN_PROGRESS">IN PROGRESS</option>
@@ -268,29 +268,29 @@ export default function TasksPage() {
                                         <td className="px-6 py-4">
                                             {assignments.length > 0 ? (
                                                 <div className="flex flex-col gap-1">
-                                                    {assignments.slice(0, 2).map(a => <span key={a.id} className="text-sm text-gray-700">{a.userName}</span>)}
-                                                    {assignments.length > 2 && <span className="text-xs text-gray-500">+{assignments.length - 2} more</span>}
+                                                    {assignments.slice(0, 2).map(a => <span key={a.id} className="text-sm text-gray-700 dark:text-gray-300">{a.userName}</span>)}
+                                                    {assignments.length > 2 && <span className="text-xs text-gray-500 dark:text-gray-400">+{assignments.length - 2} more</span>}
                                                 </div>
-                                            ) : <span className="text-sm text-gray-400">Not assigned</span>}
+                                            ) : <span className="text-sm text-gray-400 dark:text-gray-500">Not assigned</span>}
                                         </td>
                                     )}
-                                    <td className="px-6 py-4"><span className="text-sm">{formatDate(task.deadline)}</span></td>
+                                    <td className="px-6 py-4"><span className="text-sm text-gray-900 dark:text-white">{formatDate(task.deadline)}</span></td>
                                     <td className="px-6 py-4">
                                         <div className="flex gap-2">
                                             <button
                                                 onClick={() => setShowCommentsTaskId(task.id)}
-                                                className="p-2 text-green-600 hover:bg-green-50 rounded-lg"
+                                                className="p-2 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900 rounded-lg transition-colors"
                                                 title="Comments"
                                             >
                                                 <MessageSquare size={18}/>
                                             </button>
 
                                             {canAssignUsers && (
-                                                <button onClick={() => handleOpenAssignModal(task)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg" title="Assign Users"><Users size={18}/></button>
+                                                <button onClick={() => handleOpenAssignModal(task)} className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900 rounded-lg transition-colors" title="Assign Users"><Users size={18}/></button>
                                             )}
-                                            <button onClick={() => handleOpenAttachmentsModal(task)} className="p-2 text-purple-600 hover:bg-purple-50 rounded-lg" title="File Attachments"><Paperclip size={18}/></button>
+                                            <button onClick={() => handleOpenAttachmentsModal(task)} className="p-2 text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900 rounded-lg transition-colors" title="File Attachments"><Paperclip size={18}/></button>
                                             {canDeleteTask && (
-                                                <button onClick={() => handleDelete(task.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg" title="Delete Task"><Trash2 size={18}/></button>
+                                                <button onClick={() => handleDelete(task.id)} className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900 rounded-lg transition-colors" title="Delete Task"><Trash2 size={18}/></button>
                                             )}
                                         </div>
                                     </td>
@@ -303,7 +303,7 @@ export default function TasksPage() {
             </div>
 
             {sortedTasks.length === 0 && (
-                <div className="text-center py-12 text-gray-500">
+                <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                     <p className="text-lg">No tasks found</p>
                     {isDeveloper ? (
                         <p className="text-sm mt-2">You don't have any tasks assigned yet</p>
@@ -315,14 +315,14 @@ export default function TasksPage() {
 
             {showCommentsTaskId && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
-                        <div className="p-4 border-b flex justify-between items-center bg-gray-50">
-                            <h3 className="text-lg font-bold flex items-center gap-2">
-                                <MessageSquare size={20} className="text-blue-600"/>
+                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
+                        <div className="p-4 border-b dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-900">
+                            <h3 className="text-lg font-bold flex items-center gap-2 text-gray-900 dark:text-white">
+                                <MessageSquare size={20} className="text-blue-600 dark:text-blue-400"/>
                                 Task Discussion
                             </h3>
-                            <button onClick={() => setShowCommentsTaskId(null)} className="p-1 hover:bg-gray-200 rounded-full transition-colors">
-                                <X size={24}/>
+                            <button onClick={() => setShowCommentsTaskId(null)} className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition-colors">
+                                <X size={24} className="text-gray-600 dark:text-gray-400"/>
                             </button>
                         </div>
                         <div className="p-6 overflow-y-auto">
