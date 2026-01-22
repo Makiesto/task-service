@@ -43,7 +43,7 @@ export default function UsersPage() {
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">All Users ({users.length})</h3>
+                <h3 className="text-xl font-semibold text-gray-900 ">All Users ({users.length})</h3>
                 {canCreateUsers && (
                     <button
                         onClick={() => {
@@ -83,23 +83,23 @@ export default function UsersPage() {
                 )}
 
                 <div
-                    className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden transition-colors duration-200">
+                    className="bg-white  rounded-lg shadow overflow-hidden transition-colors duration-200">
                     <table className="w-full">
-                        <thead className="bg-gray-50 dark:bg-gray-900">
+                        <thead className="bg-gray-50 ">
                         <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Name</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Email</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Role</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Actions</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500  uppercase">Name</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500  uppercase">Email</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500  uppercase">Role</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500  uppercase">Actions</th>
                         </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                        <tbody className="divide-y divide-gray-200 ">
                         {users.map(user => (
                             <tr key={user.id}
-                                className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
-                                <td className="px-6 py-4 text-gray-900 dark:text-gray-100">{user.firstName} {user.lastName}</td>
-                                <td className="px-6 py-4 text-gray-900 dark:text-gray-100">{user.email}</td>
-                                <td className="px-6 py-4 text-gray-900 dark:text-gray-100">
+                                className="hover:bg-gray-50  transition-colors duration-200">
+                                <td className="px-6 py-4 text-gray-900 ">{user.firstName} {user.lastName}</td>
+                                <td className="px-6 py-4 text-gray-900 ">{user.email}</td>
+                                <td className="px-6 py-4 text-gray-900 ">
                   <span className="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
                     {user.role}
                   </span>

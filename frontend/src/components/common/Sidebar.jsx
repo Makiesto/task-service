@@ -1,7 +1,6 @@
 import React from 'react';
 import {Users, CheckSquare, Folder, Home, LogOut, UserCircle} from 'lucide-react';
 import {useApp} from '../../context/AppContext';
-import DarkModeToggle from './DarkModeToggle';
 
 export default function Sidebar() {
     const {currentPage, setCurrentPage, currentUser, logout} = useApp();
@@ -16,18 +15,17 @@ export default function Sidebar() {
     ];
 
     return (
-        <div className="fixed left-0 top-0 h-full w-64 bg-gray-900 dark:bg-gray-950 text-white p-6 flex flex-col transition-colors duration-200 border-r border-gray-800">
+        <div className="fixed left-0 top-0 h-full w-64 bg-gray-900  text-white p-6 flex flex-col transition-colors duration-200 border-r border-gray-800">
             <div className="flex-1">
                 <h1 className="text-2xl font-bold mb-2 text-white">Task Manager</h1>
 
-                <DarkModeToggle/>
 
                 {currentUser && (
-                    <div className="mt-6 mb-8 p-3 bg-gray-800 dark:bg-gray-900 rounded-lg border border-gray-700">
+                    <div className="mt-6 mb-8 p-3 bg-gray-800  rounded-lg border border-gray-700">
                         <p className="text-sm text-gray-400">Logged in as</p>
                         <p className="font-semibold text-white">{currentUser.firstName} {currentUser.lastName}</p>
                         <p className="text-xs text-gray-400">{currentUser.email}</p>
-                        <span className="inline-block mt-2 px-2 py-1 text-xs bg-blue-600 dark:bg-blue-700 rounded text-white">
+                        <span className="inline-block mt-2 px-2 py-1 text-xs bg-blue-600  rounded text-white">
               {currentUser.role}
             </span>
                     </div>
@@ -42,8 +40,8 @@ export default function Sidebar() {
                                 onClick={() => setCurrentPage(item.id)}
                                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg mb-2 transition ${
                                     currentPage === item.id
-                                        ? 'bg-blue-600 dark:bg-blue-700 text-white'
-                                        : 'text-gray-300 hover:bg-gray-800 dark:hover:bg-gray-800'
+                                        ? 'bg-blue-600  text-white'
+                                        : 'text-gray-300 hover:bg-gray-800 '
                                 }`}
                             >
                                 <Icon size={20}/>
@@ -57,7 +55,7 @@ export default function Sidebar() {
             {/* Logout button */}
             <button
                 onClick={logout}
-                className="flex items-center gap-3 px-4 py-3 rounded-lg text-red-400 hover:bg-gray-800 dark:hover:bg-gray-800 transition w-full"
+                className="flex items-center gap-3 px-4 py-3 rounded-lg text-red-400 hover:bg-gray-800  transition w-full"
             >
                 <LogOut size={20}/>
                 <span>Logout</span>

@@ -84,26 +84,26 @@ export default function ProfilePage() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+      <div className="bg-white  rounded-lg shadow p-6">
         <div className="flex items-center gap-4 mb-6">
           <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
             {currentUser?.firstName?.[0]}{currentUser?.lastName?.[0]}
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+            <h2 className="text-2xl font-bold text-gray-900 ">
               {currentUser?.firstName} {currentUser?.lastName}
             </h2>
-            <p className="text-gray-600 dark:text-gray-400">{currentUser?.email}</p>
+            <p className="text-gray-600 ">{currentUser?.email}</p>
           </div>
         </div>
 
-        <div className="flex gap-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex gap-4 border-b border-gray-200 ">
           <button
             onClick={() => setActiveTab('profile')}
             className={`pb-3 px-4 font-semibold transition-colors ${
               activeTab === 'profile'
-                ? 'border-b-2 border-blue-600 text-blue-600 dark:text-blue-400'
-                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                ? 'border-b-2 border-blue-600 text-blue-600 '
+                : 'text-gray-600  hover:text-gray-900 '
             }`}
           >
             <User size={18} className="inline mr-2" />
@@ -113,8 +113,8 @@ export default function ProfilePage() {
             onClick={() => setActiveTab('password')}
             className={`pb-3 px-4 font-semibold transition-colors ${
               activeTab === 'password'
-                ? 'border-b-2 border-blue-600 text-blue-600 dark:text-blue-400'
-                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                ? 'border-b-2 border-blue-600 text-blue-600 '
+                : 'text-gray-600  hover:text-gray-900 '
             }`}
           >
             <Lock size={18} className="inline mr-2" />
@@ -124,8 +124,8 @@ export default function ProfilePage() {
             onClick={() => setActiveTab('stats')}
             className={`pb-3 px-4 font-semibold transition-colors ${
               activeTab === 'stats'
-                ? 'border-b-2 border-blue-600 text-blue-600 dark:text-blue-400'
-                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                ? 'border-b-2 border-blue-600 text-blue-600 '
+                : 'text-gray-600  hover:text-gray-900 '
             }`}
           >
             <BarChart3 size={18} className="inline mr-2" />
@@ -137,64 +137,64 @@ export default function ProfilePage() {
       {message.text && (
         <div className={`p-4 rounded-lg ${
           message.type === 'success' 
-            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
-            : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+            ? 'bg-green-100 text-green-800  ' 
+            : 'bg-red-100 text-red-800  '
         }`}>
           {message.text}
         </div>
       )}
 
       {activeTab === 'profile' && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-          <h3 className="text-xl font-bold mb-6 text-gray-900 dark:text-white">Edit Profile</h3>
+        <div className="bg-white  rounded-lg shadow p-6">
+          <h3 className="text-xl font-bold mb-6 text-gray-900 ">Edit Profile</h3>
 
           <div className="space-y-4 max-w-2xl">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700  mb-2">
                   First Name
                 </label>
                 <input
                   type="text"
                   value={profileData.firstName}
                   onChange={e => setProfileData({ ...profileData, firstName: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  className="w-full px-4 py-2 border border-gray-300  rounded-lg bg-white  text-gray-900 "
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700  mb-2">
                   Last Name
                 </label>
                 <input
                   type="text"
                   value={profileData.lastName}
                   onChange={e => setProfileData({ ...profileData, lastName: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  className="w-full px-4 py-2 border border-gray-300  rounded-lg bg-white  text-gray-900 "
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700  mb-2">
                 Email
               </label>
               <input
                 type="email"
                 value={profileData.email}
                 onChange={e => setProfileData({ ...profileData, email: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="w-full px-4 py-2 border border-gray-300  rounded-lg bg-white  text-gray-900 "
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700  mb-2">
                 Role
               </label>
               <input
                 type="text"
                 value={profileData.role}
                 disabled
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed"
+                className="w-full px-4 py-2 border border-gray-300  rounded-lg bg-gray-100  text-gray-500  cursor-not-allowed"
               />
             </div>
 
@@ -211,43 +211,43 @@ export default function ProfilePage() {
       )}
 
       {activeTab === 'password' && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-          <h3 className="text-xl font-bold mb-6 text-gray-900 dark:text-white">Change Password</h3>
+        <div className="bg-white  rounded-lg shadow p-6">
+          <h3 className="text-xl font-bold mb-6 text-gray-900 ">Change Password</h3>
 
           <div className="space-y-4 max-w-2xl">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700  mb-2">
                 Old Password
               </label>
               <input
                 type="password"
                 value={passwordData.oldPassword}
                 onChange={e => setPasswordData({ ...passwordData, oldPassword: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="w-full px-4 py-2 border border-gray-300  rounded-lg bg-white  text-gray-900 "
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700  mb-2">
                 New Password
               </label>
               <input
                 type="password"
                 value={passwordData.newPassword}
                 onChange={e => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="w-full px-4 py-2 border border-gray-300  rounded-lg bg-white  text-gray-900 "
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700  mb-2">
                 Confirm New Password
               </label>
               <input
                 type="password"
                 value={passwordData.confirmPassword}
                 onChange={e => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="w-full px-4 py-2 border border-gray-300  rounded-lg bg-white  text-gray-900 "
               />
             </div>
 
@@ -266,11 +266,11 @@ export default function ProfilePage() {
       {activeTab === 'stats' && (
         <div className="space-y-6">
           <div className="grid grid-cols-4 gap-6">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+            <div className="bg-white  rounded-lg shadow p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-600 dark:text-gray-400 text-sm">Total Tasks</p>
-                  <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">
+                  <p className="text-gray-600  text-sm">Total Tasks</p>
+                  <p className="text-3xl font-bold text-gray-900  mt-2">
                     {stats?.totalTasks || 0}
                   </p>
                 </div>
@@ -278,11 +278,11 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+            <div className="bg-white  rounded-lg shadow p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-600 dark:text-gray-400 text-sm">Completed</p>
-                  <p className="text-3xl font-bold text-green-600 dark:text-green-400 mt-2">
+                  <p className="text-gray-600  text-sm">Completed</p>
+                  <p className="text-3xl font-bold text-green-600  mt-2">
                     {stats?.completedTasks || 0}
                   </p>
                 </div>
@@ -290,11 +290,11 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+            <div className="bg-white  rounded-lg shadow p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-600 dark:text-gray-400 text-sm">In Progress</p>
-                  <p className="text-3xl font-bold text-yellow-600 dark:text-yellow-400 mt-2">
+                  <p className="text-gray-600  text-sm">In Progress</p>
+                  <p className="text-3xl font-bold text-yellow-600  mt-2">
                     {stats?.inProgressTasks || 0}
                   </p>
                 </div>
@@ -302,11 +302,11 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+            <div className="bg-white  rounded-lg shadow p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-600 dark:text-gray-400 text-sm">High Priority</p>
-                  <p className="text-3xl font-bold text-red-600 dark:text-red-400 mt-2">
+                  <p className="text-gray-600  text-sm">High Priority</p>
+                  <p className="text-3xl font-bold text-red-600  mt-2">
                     {stats?.highPriorityTasks || 0}
                   </p>
                 </div>
@@ -315,18 +315,18 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <h3 className="text-xl font-bold mb-6 text-gray-900 dark:text-white">Task Completion Rate</h3>
+          <div className="bg-white  rounded-lg shadow p-6">
+            <h3 className="text-xl font-bold mb-6 text-gray-900 ">Task Completion Rate</h3>
 
             <div className="space-y-4">
               <div>
                 <div className="flex justify-between mb-2">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Completed</span>
-                  <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                  <span className="text-sm text-gray-600 ">Completed</span>
+                  <span className="text-sm font-semibold text-gray-900 ">
                     {stats?.totalTasks ? Math.round((stats.completedTasks / stats.totalTasks) * 100) : 0}%
                   </span>
                 </div>
-                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+                <div className="w-full bg-gray-200  rounded-full h-3">
                   <div
                     className="bg-green-600 h-3 rounded-full transition-all duration-500"
                     style={{ width: `${stats?.totalTasks ? (stats.completedTasks / stats.totalTasks) * 100 : 0}%` }}
@@ -336,12 +336,12 @@ export default function ProfilePage() {
 
               <div>
                 <div className="flex justify-between mb-2">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">In Progress</span>
-                  <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                  <span className="text-sm text-gray-600 ">In Progress</span>
+                  <span className="text-sm font-semibold text-gray-900 ">
                     {stats?.totalTasks ? Math.round((stats.inProgressTasks / stats.totalTasks) * 100) : 0}%
                   </span>
                 </div>
-                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+                <div className="w-full bg-gray-200  rounded-full h-3">
                   <div
                     className="bg-yellow-600 h-3 rounded-full transition-all duration-500"
                     style={{ width: `${stats?.totalTasks ? (stats.inProgressTasks / stats.totalTasks) * 100 : 0}%` }}
@@ -351,12 +351,12 @@ export default function ProfilePage() {
 
               <div>
                 <div className="flex justify-between mb-2">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">To Do</span>
-                  <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                  <span className="text-sm text-gray-600 ">To Do</span>
+                  <span className="text-sm font-semibold text-gray-900 ">
                     {stats?.totalTasks ? Math.round((stats.todoTasks / stats.totalTasks) * 100) : 0}%
                   </span>
                 </div>
-                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+                <div className="w-full bg-gray-200  rounded-full h-3">
                   <div
                     className="bg-blue-600 h-3 rounded-full transition-all duration-500"
                     style={{ width: `${stats?.totalTasks ? (stats.todoTasks / stats.totalTasks) * 100 : 0}%` }}

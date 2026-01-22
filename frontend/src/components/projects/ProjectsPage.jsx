@@ -158,7 +158,7 @@ function ProjectDetailsView({ project, onBack }) {
     );
   }
 
-  const getStatusColor = (status) => {
+  const usColor = (status) => {
     switch (status) {
       case 'TODO': return 'bg-gray-100 text-gray-700';
       case 'IN_PROGRESS': return 'bg-blue-100 text-blue-700';
@@ -296,7 +296,7 @@ function ProjectDetailsView({ project, onBack }) {
                 <div className="flex-1 pb-4">
                   <div className="flex items-center gap-2">
                     <h4 className="font-semibold">{task.title}</h4>
-                    <span className={`px-2 py-1 rounded text-xs ${getStatusColor(task.status)}`}>
+                    <span className={`px-2 py-1 rounded text-xs ${usColor(task.status)}`}>
                       {task.status}
                     </span>
                     <span className={`px-2 py-1 rounded text-xs ${getPriorityColor(task.priority)}`}>
@@ -330,7 +330,7 @@ function ProjectDetailsView({ project, onBack }) {
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
                     <h4 className="font-semibold">{task.title}</h4>
-                    <span className={`px-2 py-1 rounded text-xs ${getStatusColor(task.status)}`}>
+                    <span className={`px-2 py-1 rounded text-xs ${usColor(task.status)}`}>
                       {task.status}
                     </span>
                     <span className={`px-2 py-1 rounded text-xs ${getPriorityColor(task.priority)}`}>

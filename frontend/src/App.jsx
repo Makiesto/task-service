@@ -6,7 +6,6 @@ import Dashboard from './components/dashboard/Dashboard';
 import UsersPage from './components/users/UsersPage';
 import TeamsPage from './components/teams/TeamsPage';
 import TasksPage from './components/tasks/TasksPage';
-import {ThemeProvider} from './context/ThemeContext';
 import ProjectsPage from './components/projects/ProjectsPage';
 import RegisterPage from './components/register/RegisterPage';
 import LoginPage from './components/auth/LoginPage';
@@ -20,7 +19,7 @@ function AppContent() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex transition-colors duration-200">
+        <div className="min-h-screen bg-gray-50  flex transition-colors duration-200">
             <Sidebar/>
             <div className="flex-1 ml-64">
                 <div className="p-8">
@@ -41,10 +40,8 @@ function AppContent() {
 
 export default function App() {
     return (
-        <ThemeProvider>
-            <AppProvider>
-                <AppContent/>
-            </AppProvider>
-        </ThemeProvider>
+        <AppProvider>
+            <AppContent/>
+        </AppProvider>
     );
 }
