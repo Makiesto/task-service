@@ -2,7 +2,7 @@
 
 A comprehensive microservices-based task management application built with Spring Boot and React.
 
-## 🏗️ Architecture
+## Architecture
 
 This project follows a microservices architecture with three main backend services:
 
@@ -15,7 +15,7 @@ This project follows a microservices architecture with three main backend servic
 - **REST APIs**: Synchronous HTTP communication between services
 - **OpenFeign**: Declarative REST client for service-to-service calls
 
-## 🚀 Features
+## Features
 
 ### User Management
 - User registration and authentication with JWT
@@ -80,7 +80,7 @@ This project follows a microservices architecture with three main backend servic
 - **RabbitMQ** for messaging
 - **Mailtrap** for email testing
 
-## 📋 Prerequisites
+## Prerequisites
 
 - Java 23 or higher
 - Node.js 18+ and npm
@@ -88,7 +88,7 @@ This project follows a microservices architecture with three main backend servic
 - RabbitMQ 3.x
 - Maven 3.9+
 
-## 🔧 Installation & Setup
+## Installation & Setup
 
 ### 1. Database Setup
 
@@ -174,7 +174,7 @@ npm run dev
 
 The application will be available at `http://localhost:5173`
 
-## 🎯 Usage
+## Usage
 
 ### Default Login Credentials
 
@@ -224,7 +224,7 @@ Email notifications are sent via Mailtrap. To receive notifications:
 └── README.md
 ```
 
-## 🔒 Security Features
+## Security Features
 
 - JWT-based authentication
 - Password hashing with BCrypt
@@ -233,7 +233,7 @@ Email notifications are sent via Mailtrap. To receive notifications:
 - Request validation
 - Session management
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Backend won't start
 - Check if PostgreSQL is running
@@ -255,7 +255,7 @@ Email notifications are sent via Mailtrap. To receive notifications:
 - Check notification service logs
 - Ensure RabbitMQ is properly configured
 
-## 🧪 Testing
+## Testing
 
 ```bash
 # Backend tests
@@ -267,7 +267,7 @@ cd frontend
 npm test
 ```
 
-## 📝 API Documentation
+## API Documentation
 
 Once the services are running, access Swagger UI documentation:
 
@@ -275,7 +275,7 @@ Once the services are running, access Swagger UI documentation:
 - Task Service: `http://localhost:8081/swagger-ui.html`
 - Notification Service: `http://localhost:8083/swagger-ui.html`
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
@@ -283,22 +283,22 @@ Once the services are running, access Swagger UI documentation:
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License.
 
-## 👥 Authors
+## Authors
 
 - Mateusz Stojek
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - Spring Boot team for the excellent framework
 - React team for the frontend library
 - RabbitMQ for messaging infrastructure
 - TailwindCSS for the styling framework
 
-## 🔮 Future Enhancements
+## Future Enhancements
 
 - [ ] Real-time notifications with WebSockets
 - [ ] Task templates
@@ -311,7 +311,7 @@ This project is licensed under the MIT License.
 - [ ] Time tracking
 - [ ] Document version control
 
-## 📞 Support
+## Support
 
 For issues and questions:
 - Create an issue in the GitHub repository
